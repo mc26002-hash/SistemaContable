@@ -1,5 +1,6 @@
 package esfe.dominio;
 
+
 public class TipoCuenta {
 
     private int tipoCuentaId;
@@ -48,3 +49,4 @@ public class TipoCuenta {
                 '}';
     }
 }
+
