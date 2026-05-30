@@ -86,3 +86,4 @@ public class Usuario {
         this.activo = activo;
     }
 }
+
