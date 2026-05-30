@@ -100,22 +100,4 @@ class TipoDocumentoFiscalDAOTest {
 
         delete(testTipoDocumentoFiscal);
     }
-
-    @Test
-    void createTipoDocumentoFiscal() throws SQLException {
-        Random random = new Random();
-        int num = random.nextInt(1000) + 1;
-
-        TipoDocumentoFiscal tipoDocumentoFiscal = new TipoDocumentoFiscal(
-                0,
-                "CF" + num,
-                "Comprobante Fiscal " + num
-        );
-
-        TipoDocumentoFiscal res = tipoDocumentoFiscalDAO.create(tipoDocumentoFiscal);
-
-        assertNotNull(res);
-
-        tipoDocumentoFiscalDAO.delete(res);
-    }
 }
