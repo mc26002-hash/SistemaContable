@@ -1,11 +1,12 @@
 package esfe.persistencia;
 
+import esfe.dominio.TipoDocumentoFiscal;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-
-import esfe.dominio.TipoDocumentoFiscal;
 
 public class TipoDocumentoFiscalDAO {
     private ConnectionManager conn;
@@ -21,8 +22,9 @@ public class TipoDocumentoFiscalDAO {
 
         try {
             ps = conn.connect().prepareStatement(
-                    "INSERT INTO TiposDocumentoFiscal (Codigo, Nombre) VALUES (?, ?)",
-                    java.sql.Statement.RETURN_GENERATED_KEYS
+                    "INSERT INTO TiposDocumentoFiscal (Codigo, Nombre) " +
+                            "VALUES (?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
             );
 
             ps.setString(1, tipoDocumentoFiscal.getCodigo());
@@ -31,22 +33,28 @@ public class TipoDocumentoFiscalDAO {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows != 0) {
-                ResultSet generatedKeys = ps.getGeneratedKeys();
+                rs = ps.getGeneratedKeys();
 
-                if (generatedKeys.next()) {
-                    int idGenerado = generatedKeys.getInt(1);
-                    tipoDocumentoFiscal.setTipoDocumentoFiscalId(idGenerado);
-                    res = tipoDocumentoFiscal;
+                if (rs.next()) {
+                    int idGenerado = rs.getInt(1);
+                    res = getById(idGenerado);
                 } else {
-                    throw new SQLException("Creating TipoDocumentoFiscal failed, no ID obtained.");
+                    throw new SQLException("Error al crear el tipo de documento fiscal: no se obtuvo ID.");
                 }
             }
-
-            ps.close();
 
         } catch (SQLException ex) {
             throw new SQLException("Error al crear el tipo de documento fiscal: " + ex.getMessage(), ex);
         } finally {
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ps != null) {
+                ps.close();
+            }
+
+            rs = null;
             ps = null;
             conn.disconnect();
         }
@@ -59,7 +67,9 @@ public class TipoDocumentoFiscalDAO {
 
         try {
             ps = conn.connect().prepareStatement(
-                    "UPDATE TiposDocumentoFiscal SET Codigo = ?, Nombre = ? WHERE TipoDocumentoFiscalId = ?"
+                    "UPDATE TiposDocumentoFiscal " +
+                            "SET Codigo = ?, Nombre = ? " +
+                            "WHERE TipoDocumentoFiscalId = ?"
             );
 
             ps.setString(1, tipoDocumentoFiscal.getCodigo());
@@ -70,11 +80,13 @@ public class TipoDocumentoFiscalDAO {
                 res = true;
             }
 
-            ps.close();
-
         } catch (SQLException ex) {
             throw new SQLException("Error al modificar el tipo de documento fiscal: " + ex.getMessage(), ex);
         } finally {
+            if (ps != null) {
+                ps.close();
+            }
+
             ps = null;
             conn.disconnect();
         }
@@ -96,11 +108,13 @@ public class TipoDocumentoFiscalDAO {
                 res = true;
             }
 
-            ps.close();
-
         } catch (SQLException ex) {
             throw new SQLException("Error al eliminar el tipo de documento fiscal: " + ex.getMessage(), ex);
         } finally {
+            if (ps != null) {
+                ps.close();
+            }
+
             ps = null;
             conn.disconnect();
         }
@@ -108,7 +122,7 @@ public class TipoDocumentoFiscalDAO {
         return res;
     }
 
-    public ArrayList<TipoDocumentoFiscal> search(String nombre) throws SQLException {
+    public ArrayList<TipoDocumentoFiscal> search(String texto) throws SQLException {
         ArrayList<TipoDocumentoFiscal> records = new ArrayList<>();
 
         try {
@@ -118,37 +132,42 @@ public class TipoDocumentoFiscalDAO {
                             "WHERE Nombre LIKE ? OR Codigo LIKE ?"
             );
 
-            ps.setString(1, "%" + nombre + "%");
-            ps.setString(2, "%" + nombre + "%");
+            ps.setString(1, "%" + texto + "%");
+            ps.setString(2, "%" + texto + "%");
 
             rs = ps.executeQuery();
 
             while (rs.next()) {
                 TipoDocumentoFiscal tipoDocumentoFiscal = new TipoDocumentoFiscal();
 
-                tipoDocumentoFiscal.setTipoDocumentoFiscalId(rs.getInt(1));
-                tipoDocumentoFiscal.setCodigo(rs.getString(2));
-                tipoDocumentoFiscal.setNombre(rs.getString(3));
+                tipoDocumentoFiscal.setTipoDocumentoFiscalId(rs.getInt("TipoDocumentoFiscalId"));
+                tipoDocumentoFiscal.setCodigo(rs.getString("Codigo"));
+                tipoDocumentoFiscal.setNombre(rs.getString("Nombre"));
 
                 records.add(tipoDocumentoFiscal);
             }
 
-            ps.close();
-            rs.close();
-
         } catch (SQLException ex) {
             throw new SQLException("Error al buscar tipos de documento fiscal: " + ex.getMessage(), ex);
         } finally {
-            ps = null;
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ps != null) {
+                ps.close();
+            }
+
             rs = null;
+            ps = null;
             conn.disconnect();
         }
 
         return records;
     }
 
-    public TipoDocumentoFiscal getById(int id) throws SQLException {
-        TipoDocumentoFiscal tipoDocumentoFiscal = new TipoDocumentoFiscal();
+    public TipoDocumentoFiscal getById(int tipoDocumentoFiscalId) throws SQLException {
+        TipoDocumentoFiscal tipoDocumentoFiscal = null;
 
         try {
             ps = conn.connect().prepareStatement(
@@ -157,26 +176,31 @@ public class TipoDocumentoFiscalDAO {
                             "WHERE TipoDocumentoFiscalId = ?"
             );
 
-            ps.setInt(1, id);
+            ps.setInt(1, tipoDocumentoFiscalId);
 
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                tipoDocumentoFiscal.setTipoDocumentoFiscalId(rs.getInt(1));
-                tipoDocumentoFiscal.setCodigo(rs.getString(2));
-                tipoDocumentoFiscal.setNombre(rs.getString(3));
-            } else {
-                tipoDocumentoFiscal = null;
-            }
+                tipoDocumentoFiscal = new TipoDocumentoFiscal();
 
-            ps.close();
-            rs.close();
+                tipoDocumentoFiscal.setTipoDocumentoFiscalId(rs.getInt("TipoDocumentoFiscalId"));
+                tipoDocumentoFiscal.setCodigo(rs.getString("Codigo"));
+                tipoDocumentoFiscal.setNombre(rs.getString("Nombre"));
+            }
 
         } catch (SQLException ex) {
             throw new SQLException("Error al obtener el tipo de documento fiscal por id: " + ex.getMessage(), ex);
         } finally {
-            ps = null;
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ps != null) {
+                ps.close();
+            }
+
             rs = null;
+            ps = null;
             conn.disconnect();
         }
 
