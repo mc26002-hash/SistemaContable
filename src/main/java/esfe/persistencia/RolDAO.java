@@ -2,116 +2,211 @@ package esfe.persistencia;
 
 import esfe.dominio.Rol;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.*;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 
 public class RolDAO {
+    private ConnectionManager conn;
+    private PreparedStatement ps;
+    private ResultSet rs;
 
+    public RolDAO() {
+        conn = ConnectionManager.getInstance();
+    }
 
-    private static final String SQL_SELECT = "SELECT id_rol, nombre_rol, descripcion FROM rol";
-    private static final String SQL_INSERT = "INSERT INTO rol(nombre_rol, descripcion) VALUES(?, ?)";
-    private static final String SQL_UPDATE = "UPDATE rol SET nombre_rol=?, descripcion=? WHERE id_rol=?";
-    private static final String SQL_DELETE = "DELETE FROM rol WHERE id_rol=?";
-
-
-
-    public List<Rol> listar() {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        Rol rol = null;
-        List<Rol> roles = new ArrayList<>();
+    public Rol create(Rol rol) throws SQLException {
+        Rol res = null;
 
         try {
+            ps = conn.connect().prepareStatement(
+                    "INSERT INTO Roles (NombreRol, Descripcion, Activo) " +
+                            "VALUES (?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
 
-            conn = ConnectionManager.getInstance().connect();
-            stmt = conn.prepareStatement(SQL_SELECT);
-            rs = stmt.executeQuery();
+            ps.setString(1, rol.getNombreRol());
+            ps.setString(2, rol.getDescripcion());
+            ps.setBoolean(3, rol.getActivo());
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows != 0) {
+                rs = ps.getGeneratedKeys();
+
+                if (rs.next()) {
+                    int idGenerado = rs.getInt(1);
+                    res = getById(idGenerado);
+                } else {
+                    throw new SQLException("Error al crear el rol: no se obtuvo ID.");
+                }
+            }
+
+        } catch (SQLException ex) {
+            throw new SQLException("Error al crear el rol: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ps != null) {
+                ps.close();
+            }
+
+            rs = null;
+            ps = null;
+            conn.disconnect();
+        }
+
+        return res;
+    }
+
+    public boolean update(Rol rol) throws SQLException {
+        boolean res = false;
+
+        try {
+            ps = conn.connect().prepareStatement(
+                    "UPDATE Roles " +
+                            "SET NombreRol = ?, Descripcion = ?, Activo = ? " +
+                            "WHERE RolId = ?"
+            );
+
+            ps.setString(1, rol.getNombreRol());
+            ps.setString(2, rol.getDescripcion());
+            ps.setBoolean(3, rol.getActivo());
+            ps.setInt(4, rol.getRolId());
+
+            if (ps.executeUpdate() > 0) {
+                res = true;
+            }
+
+        } catch (SQLException ex) {
+            throw new SQLException("Error al modificar el rol: " + ex.getMessage(), ex);
+        } finally {
+            if (ps != null) {
+                ps.close();
+            }
+
+            ps = null;
+            conn.disconnect();
+        }
+
+        return res;
+    }
+
+    public boolean delete(Rol rol) throws SQLException {
+        boolean res = false;
+
+        try {
+            ps = conn.connect().prepareStatement(
+                    "DELETE FROM Roles WHERE RolId = ?"
+            );
+
+            ps.setInt(1, rol.getRolId());
+
+            if (ps.executeUpdate() > 0) {
+                res = true;
+            }
+
+        } catch (SQLException ex) {
+            throw new SQLException("Error al eliminar el rol: " + ex.getMessage(), ex);
+        } finally {
+            if (ps != null) {
+                ps.close();
+            }
+
+            ps = null;
+            conn.disconnect();
+        }
+
+        return res;
+    }
+
+    public ArrayList<Rol> search(String nombreRol) throws SQLException {
+        ArrayList<Rol> records = new ArrayList<>();
+
+        try {
+            ps = conn.connect().prepareStatement(
+                    "SELECT RolId, NombreRol, Descripcion, Activo " +
+                            "FROM Roles " +
+                            "WHERE NombreRol LIKE ?"
+            );
+
+            ps.setString(1, "%" + nombreRol + "%");
+
+            rs = ps.executeQuery();
 
             while (rs.next()) {
-                int idRol = rs.getInt("id_rol");
-                String nombreRol = rs.getString("nombre_rol");
-                String descripcion = rs.getString("descripcion");
+                Rol rol = new Rol();
 
-                rol = new Rol(idRol, nombreRol, descripcion);
-                roles.add(rol);
+                rol.setRolId(rs.getInt("RolId"));
+                rol.setNombreRol(rs.getString("NombreRol"));
+                rol.setDescripcion(rs.getString("Descripcion"));
+                rol.setActivo(rs.getBoolean("Activo"));
+
+                records.add(rol);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace(System.out);
-        } finally {
 
-            try { if (rs != null) rs.close(); } catch (SQLException e) {}
-            try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
-            try { if (conn != null) conn.close(); } catch (SQLException e) {}
+        } catch (SQLException ex) {
+            throw new SQLException("Error al buscar roles: " + ex.getMessage(), ex);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ps != null) {
+                ps.close();
+            }
+
+            rs = null;
+            ps = null;
+            conn.disconnect();
         }
-        return roles;
+
+        return records;
     }
 
-
-    public int insertar(Rol rol) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        int registrosModificados = 0;
+    public Rol getById(int rolId) throws SQLException {
+        Rol rol = null;
 
         try {
-            conn = ConnectionManager.getInstance().connect();
-            stmt = conn.prepareStatement(SQL_INSERT);
-            stmt.setString(1, rol.getNombreRol());
-            stmt.setString(2, rol.getDescripcion());
+            ps = conn.connect().prepareStatement(
+                    "SELECT RolId, NombreRol, Descripcion, Activo " +
+                            "FROM Roles " +
+                            "WHERE RolId = ?"
+            );
 
-            registrosModificados = stmt.executeUpdate();
+            ps.setInt(1, rolId);
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                rol = new Rol();
+
+                rol.setRolId(rs.getInt("RolId"));
+                rol.setNombreRol(rs.getString("NombreRol"));
+                rol.setDescripcion(rs.getString("Descripcion"));
+                rol.setActivo(rs.getBoolean("Activo"));
+            }
+
         } catch (SQLException ex) {
-            ex.printStackTrace(System.out);
+            throw new SQLException("Error al obtener el rol por id: " + ex.getMessage(), ex);
         } finally {
-            try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
-            try { if (conn != null) conn.close(); } catch (SQLException e) {}
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ps != null) {
+                ps.close();
+            }
+
+            rs = null;
+            ps = null;
+            conn.disconnect();
         }
-        return registrosModificados;
-    }
 
-
-    public int actualizar(Rol rol) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        int registrosModificados = 0;
-
-        try {
-            conn = ConnectionManager.getInstance().connect();
-            stmt = conn.prepareStatement(SQL_UPDATE);
-            stmt.setString(1, rol.getNombreRol());
-            stmt.setString(2, rol.getDescripcion());
-            stmt.setInt(3, rol.getIdRol());
-
-            registrosModificados = stmt.executeUpdate();
-        } catch (SQLException ex) {
-            ex.printStackTrace(System.out);
-        } finally {
-            try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
-            try { if (conn != null) conn.close(); } catch (SQLException e) {}
-        }
-        return registrosModificados;
-    }
-
-
-    public int eliminar(int idRol) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        int registrosModificados = 0;
-
-        try {
-            conn = ConnectionManager.getInstance().connect();
-            stmt = conn.prepareStatement(SQL_DELETE);
-            stmt.setInt(1, idRol);
-
-            registrosModificados = stmt.executeUpdate();
-        } catch (SQLException ex) {
-            ex.printStackTrace(System.out);
-        } finally {
-            try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
-            try { if (conn != null) conn.close(); } catch (SQLException e) {}
-        }
-        return registrosModificados;
+        return rol;
     }
 }
