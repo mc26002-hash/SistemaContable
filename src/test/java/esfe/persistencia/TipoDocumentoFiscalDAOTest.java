@@ -7,7 +7,6 @@ import esfe.dominio.TipoDocumentoFiscal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,8 +58,7 @@ class TipoDocumentoFiscalDAOTest {
         boolean find = false;
 
         for (TipoDocumentoFiscal item : tipos) {
-            if (item.getNombre().contains(tipoDocumentoFiscal.getNombre())
-                    || item.getCodigo().contains(tipoDocumentoFiscal.getCodigo())) {
+            if (item.getTipoDocumentoFiscalId() == tipoDocumentoFiscal.getTipoDocumentoFiscalId()) {
                 find = true;
                 break;
             }
@@ -83,8 +81,7 @@ class TipoDocumentoFiscalDAOTest {
 
     @Test
     void testTipoDocumentoFiscalDAO() throws SQLException {
-        Random random = new Random();
-        int num = random.nextInt(1000) + 1;
+        long num = System.currentTimeMillis() % 100000;
 
         TipoDocumentoFiscal tipoDocumentoFiscal = new TipoDocumentoFiscal(
                 0,
@@ -93,6 +90,8 @@ class TipoDocumentoFiscalDAOTest {
         );
 
         TipoDocumentoFiscal testTipoDocumentoFiscal = create(tipoDocumentoFiscal);
+
+        getById(testTipoDocumentoFiscal);
 
         update(testTipoDocumentoFiscal);
 

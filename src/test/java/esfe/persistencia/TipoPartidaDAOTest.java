@@ -3,54 +3,90 @@ package esfe.persistencia;
 import esfe.dominio.TipoPartida;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.math.BigDecimal;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TipoPartidaDAOTest {
-
-    private TipoPartidaDAO repository;
+class TipoPartidaDAOTest {
+    private TipoPartidaDAO tipoPartidaDAO;
 
     @BeforeEach
     void setUp() {
-        repository = new TipoPartidaDAO();
+        tipoPartidaDAO = new TipoPartidaDAO();
+    }
+
+    private TipoPartida create(TipoPartida tipoPartida) throws SQLException {
+        TipoPartida res = tipoPartidaDAO.create(tipoPartida);
+
+        assertNotNull(res, "El tipo de partida creado no debería ser nulo.");
+        assertTrue(res.getTipoPartidaId() > 0, "El ID generado debe ser mayor que cero.");
+        assertEquals(tipoPartida.getNombreTipo(), res.getNombreTipo());
+
+        return res;
+    }
+
+    private void update(TipoPartida tipoPartida) throws SQLException {
+        tipoPartida.setNombreTipo(tipoPartida.getNombreTipo() + "_u");
+
+        boolean res = tipoPartidaDAO.update(tipoPartida);
+
+        assertTrue(res, "La actualización debería ser exitosa.");
+
+        getById(tipoPartida);
+    }
+
+    private void getById(TipoPartida tipoPartida) throws SQLException {
+        TipoPartida res = tipoPartidaDAO.getById(tipoPartida.getTipoPartidaId());
+
+        assertNotNull(res, "El tipo de partida obtenido por ID no debería ser nulo.");
+        assertEquals(tipoPartida.getTipoPartidaId(), res.getTipoPartidaId());
+        assertEquals(tipoPartida.getNombreTipo(), res.getNombreTipo());
+    }
+
+    private void search(TipoPartida tipoPartida) throws SQLException {
+        ArrayList<TipoPartida> tipos = tipoPartidaDAO.search(tipoPartida.getNombreTipo());
+
+        boolean encontrado = false;
+
+        for (TipoPartida item : tipos) {
+            if (item.getTipoPartidaId() == tipoPartida.getTipoPartidaId()) {
+                encontrado = true;
+                break;
+            }
+        }
+
+        assertTrue(encontrado, "El tipo de partida buscado no fue encontrado.");
+    }
+
+    private void delete(TipoPartida tipoPartida) throws SQLException {
+        boolean res = tipoPartidaDAO.delete(tipoPartida);
+
+        assertTrue(res, "La eliminación debería ser exitosa.");
+
+        TipoPartida res2 = tipoPartidaDAO.getById(tipoPartida.getTipoPartidaId());
+
+        assertNull(res2, "El tipo de partida debería haber sido eliminado.");
     }
 
     @Test
-    void testCalculoTotalesEnTiempoRealYCuadrado() {
+    void testTipoPartidaDAO() throws SQLException {
+        String nombreTipo = "Tipo Partida Test " + System.currentTimeMillis();
 
-        TipoPartida partida = new TipoPartida("Venta de mercadería");
+        TipoPartida tipoPartida = new TipoPartida(
+                0,
+                nombreTipo
+        );
 
-        partida.agregarDetalle("101", "Caja", new BigDecimal("1000.00"), BigDecimal.ZERO);
+        TipoPartida testTipoPartida = create(tipoPartida);
 
-        assertEquals(new BigDecimal("1000.00"), partida.getTotalDebe());
-        assertEquals(BigDecimal.ZERO, partida.getTotalHaber());
-        assertFalse(partida.estaCuadrada(), "No debería estar cuadrada con solo una línea");
+        getById(testTipoPartida);
 
-        partida.agregarDetalle("701", "Ventas", BigDecimal.ZERO, new BigDecimal("1000.00"));
+        update(testTipoPartida);
 
-        assertEquals(new BigDecimal("1000.00"), partida.getTotalDebe());
-        assertEquals(new BigDecimal("1000.00"), partida.getTotalHaber());
-        assertTrue(partida.estaCuadrada(), "La partida debería estar perfectamente cuadrada");
-    }
+        search(testTipoPartida);
 
-    @Test
-    void testGuardarPartidaDescuadradaLanzaExcepcion() {
-        TipoPartida partidaDescuadrada = new TipoPartida("Partida errónea");
-        partidaDescuadrada.agregarDetalle("101", "Caja", new BigDecimal("500.00"), BigDecimal.ZERO);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            repository.guardar(partidaDescuadrada);
-        });
-    }
-
-    @Test
-    void testGuardarPartidaExitosa() {
-        TipoPartida partidaValida = new TipoPartida("Pago de servicios");
-        partidaValida.agregarDetalle("631", "Luz", new BigDecimal("150.00"), BigDecimal.ZERO);
-        partidaValida.agregarDetalle("101", "Caja", BigDecimal.ZERO, new BigDecimal("150.00"));
-
-        assertDoesNotThrow(() -> repository.guardar(partidaValida));
-        assertNotNull(partidaValida.getId(), "El ID debería haber sido asignado por el repositorio");
+        delete(testTipoPartida);
     }
 }
