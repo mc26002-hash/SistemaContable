@@ -1,4 +1,7 @@
 package esfe.presentacion;
 
-public class UserReadingForm {
+import javax.swing.*;
+
+public class UserReadingForm extends JDialog {
+
 }

@@ -1,4 +1,7 @@
 package esfe.presentacion;
 
-public class UserWriteForm {
+import javax.swing.*;
+
+public class UserWriteForm extends JDialog {
+
 }

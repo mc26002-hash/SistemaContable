@@ -1,4 +1,7 @@
 package esfe.presentacion;
 
-public class ChangePasswordForm {
+import javax.swing.*;
+
+public class ChangePasswordForm extends JDialog {
+
 }
