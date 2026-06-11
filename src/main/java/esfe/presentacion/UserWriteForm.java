@@ -1,4 +1,4 @@
 package esfe.presentacion;
 
-public class borralo {
+public class UserWriteForm {
 }
