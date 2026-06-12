@@ -9,4 +9,6 @@ public class LoginForm extends JDialog {
     private JButton editarButton;
     private JButton nuevaCuentaButton;
     private JTable table1;
+    private JPanel panelPrincipal;
+    private JLabel lblTitulo2;
 }
