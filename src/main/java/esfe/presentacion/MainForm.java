@@ -32,50 +32,31 @@ public class MainForm extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        //MENU DE OPCIONES
+        // =========================
+        // MENÚ ARCHIVO
+        // =========================
         JMenu menuArchivo = new JMenu("Archivo");
-        JMenu menuUsuarios = new JMenu("Usuarios");
-        JMenu menuContabilidad = new JMenu("Contabilidad");
-        JMenu menuReportes = new JMenu("Reportes");
-        JMenu menuHerramientas = new JMenu("Herramientas");
-        JMenu menuAyuda = new JMenu("Ayuda");
-
         menuBar.add(menuArchivo);
-        menuBar.add(menuUsuarios);
-        menuBar.add(menuContabilidad);
-        menuBar.add(menuReportes);
-        menuBar.add(menuHerramientas);
-        menuBar.add(menuAyuda);
 
-        //OPCIONES SELECT DE ARCHIVO
         JMenuItem itemInicio = new JMenuItem("Inicio");
-        JMenuItem itemCatalogoDeCuentas = new JMenuItem("Catalogo de Cuentas");
-        JMenuItem itemNuevoAsientoContable = new JMenuItem("Nuevo Asiento Contable");
         JMenuItem itemSalir = new JMenuItem("Salir");
 
         menuArchivo.add(itemInicio);
-        menuArchivo.add(itemCatalogoDeCuentas);
-        menuArchivo.add(itemNuevoAsientoContable);
         menuArchivo.addSeparator();
         menuArchivo.add(itemSalir);
 
-        //LOGICA PARA ABRIR LA NUEVA VENTADA DE LA SECCIÓN
-        itemCatalogoDeCuentas.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                            "Este módulo se integrará después.",
-                            "Módulo pendiente",
-                            JOptionPane.INFORMATION_MESSAGE);
-            });
-
-
         itemSalir.addActionListener(e -> System.exit(0));
 
-        //OPCIONES SELECT DE USUARIOS
+        // =========================
+        // MENÚ USUARIOS
+        // =========================
+        JMenu menuUsuarios = new JMenu("Usuarios");
+        menuBar.add(menuUsuarios);
+
         JMenuItem itemGestionUsuarios = new JMenuItem("Gestión de Usuarios");
 
         menuUsuarios.add(itemGestionUsuarios);
 
-        //LOGICA PARA ABRIR LA NUEVA VENTADA DE LA SECCIÓN
         itemGestionUsuarios.addActionListener(e -> {
             JOptionPane.showMessageDialog(this,
                     "Este módulo se integrará después.",
@@ -83,16 +64,43 @@ public class MainForm extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
         });
 
-        //OPCIONES SELECT DE CONTABILIDAD
+        // =========================
+        // MENÚ CONTABILIDAD
+        // =========================
+        JMenu menuContabilidad = new JMenu("Contabilidad");
+        menuBar.add(menuContabilidad);
+
+        // Submenú Catálogos
+        JMenu menuCatalogos = new JMenu("Catálogos");
+        menuContabilidad.add(menuCatalogos);
+
+        // Items de Catálogos
         JMenuItem itemCatalogoCuentas = new JMenuItem("Catálogo de Cuentas");
+        JMenuItem itemTipoDocumentoFiscal = new JMenuItem("Tipos de Documento Fiscal");
+
+        menuCatalogos.add(itemCatalogoCuentas);
+        menuCatalogos.add(itemTipoDocumentoFiscal);
+
+        // Otros items de Contabilidad
         JMenuItem itemAsientos = new JMenuItem("Asientos Contables");
         JMenuItem itemPeriodos = new JMenuItem("Cierre de Periodos");
 
-        menuContabilidad.add(itemCatalogoCuentas);
+        menuContabilidad.addSeparator();
         menuContabilidad.add(itemAsientos);
         menuContabilidad.add(itemPeriodos);
 
-        //OPCIONES SELECT DE REPORTES
+        // Eventos
+        itemCatalogoCuentas.addActionListener(e -> mostrarModuloPendiente());
+        itemTipoDocumentoFiscal.addActionListener(e -> mostrarModuloPendiente());
+        itemAsientos.addActionListener(e -> mostrarModuloPendiente());
+        itemPeriodos.addActionListener(e -> mostrarModuloPendiente());
+
+        // =========================
+        // MENÚ REPORTES
+        // =========================
+        JMenu menuReportes = new JMenu("Reportes");
+        menuBar.add(menuReportes);
+
         JMenuItem itemBalanceComprobacion = new JMenuItem("Balance de Comprobación");
         JMenuItem itemReportesFinancieros = new JMenuItem("Reportes Financieros");
         JMenuItem itemExportacionIVA = new JMenuItem("Exportación de IVA");
@@ -101,16 +109,43 @@ public class MainForm extends JFrame {
         menuReportes.add(itemReportesFinancieros);
         menuReportes.add(itemExportacionIVA);
 
-        //OPCIONES SELECT DE HERRAMIENTAS
+        itemBalanceComprobacion.addActionListener(e -> mostrarModuloPendiente());
+        itemReportesFinancieros.addActionListener(e -> mostrarModuloPendiente());
+        itemExportacionIVA.addActionListener(e -> mostrarModuloPendiente());
+
+        // =========================
+        // MENÚ HERRAMIENTAS
+        // =========================
+        JMenu menuHerramientas = new JMenu("Herramientas");
+        menuBar.add(menuHerramientas);
+
         JMenuItem itemCierrePeriodos = new JMenuItem("Cierre de Periodos");
         JMenuItem itemCalculadora = new JMenuItem("Calculadora");
 
         menuHerramientas.add(itemCierrePeriodos);
         menuHerramientas.add(itemCalculadora);
 
-        //OPCIONES SELECT DE AYUDA
+        itemCierrePeriodos.addActionListener(e -> mostrarModuloPendiente());
+        itemCalculadora.addActionListener(e -> mostrarModuloPendiente());
+
+        // =========================
+        // MENÚ AYUDA
+        // =========================
+        JMenu menuAyuda = new JMenu("Ayuda");
+        menuBar.add(menuAyuda);
+
         JMenuItem itemManualUsuario = new JMenuItem("Manual de Usuario");
+
         menuAyuda.add(itemManualUsuario);
+
+        itemManualUsuario.addActionListener(e -> mostrarModuloPendiente());
+    }
+
+    private void mostrarModuloPendiente() {
+        JOptionPane.showMessageDialog(this,
+                "Este módulo se integrará después.",
+                "Módulo pendiente",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void createMainPanel() {
