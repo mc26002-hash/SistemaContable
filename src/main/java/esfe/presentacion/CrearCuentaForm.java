@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 
 public class CrearCuentaForm extends JDialog {
 
-    // Estos componentes deben llamarse igual en tu archivo .form (field name)
+    // Componentes vinculados automáticamente con tu archivo .form
     private JPanel mainPanel;
     private JTextField txtCodigo;
     private JTextField txtNombre;
@@ -15,19 +15,18 @@ public class CrearCuentaForm extends JDialog {
     private JButton btnGuardar;
     private JButton btnCancelar;
     private JLabel lblTitulo;
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField3;
-    private JTextField textField4;
 
-    // Constructor que recibe la ventana padre
-    public CrearCuentaForm(JDialog padre) {
-        super(padre, true); // El 'true' la vuelve modal (bloquea la ventana de atrás)
+    // Quité las variables genéricas (textField1, etc.) para que tu código esté más limpio
+
+    // MODIFICADO: Ahora recibe directamente a TipoCuenta como ventana padre
+    public CrearCuentaForm(TipoCuenta padre) {
+        super(padre, true); // Sigue siendo modal (bloquea la de atrás)
 
         setTitle("Nueva Cuenta");
         setContentPane(mainPanel); // Vincula tu diseño visual
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         pack();
+
         if (padre != null) {
             setLocationRelativeTo(padre); // Se centra justo encima del catálogo
         } else {
@@ -58,6 +57,7 @@ public class CrearCuentaForm extends JDialog {
         String tipo = txtTipo.getText();
         String estado = txtEstado.getText();
 
+        // Validación de que no dejen campos en blanco
         if (codigo.isEmpty() || nombre.isEmpty() || tipo.isEmpty() || estado.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Por favor, complete todos los campos obligatorios.",

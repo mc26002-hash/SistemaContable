@@ -1,12 +1,11 @@
 package esfe.presentacion;
 
-import esfe.presentacion.CrearCuentaForm; // Asegúrate de que el nombre de tu otra pantalla sea este
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class LoginForm extends JDialog {
+public class TipoCuenta extends JDialog {
 
     // Componentes vinculados automáticamente con tu archivo .form
     private JPanel mainPanel;
@@ -18,7 +17,7 @@ public class LoginForm extends JDialog {
     private JLabel lblTitulo2;
 
     // Constructor de la pantalla
-    public LoginForm(JFrame padre) {
+    public TipoCuenta(JFrame padre) {
         super(padre, true); // La hace modal para que resalte sobre el formulario principal
 
         setTitle("Catálogo de Cuentas Contables");
@@ -27,20 +26,20 @@ public class LoginForm extends JDialog {
         pack();
         setLocationRelativeTo(padre); // Centra la ventana en la pantalla
 
-        // 1. Cargamos los datos de SQL Server en la tabla al abrir la ventana
+        // 1. Cargamos los datos en la tabla al abrir la ventana
         llenarTabla();
 
         // 2. EVENTO: Al dar clic en "Nueva Cuenta", abre la ventana de creación
         nuevaCuentaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Le pasamos 'LoginForm.this' para que actúe como ventana padre legítima
-                CrearCuentaForm pantallaCrear = new CrearCuentaForm(LoginForm.this);
+                // Pasamos 'TipoCuenta.this' como la ventana padre legítima
+                CrearCuentaForm pantallaCrear = new CrearCuentaForm(TipoCuenta.this);
                 pantallaCrear.setVisible(true);
             }
         });
 
-        // EVENTO: Botón Editar (opcional por ahora)
+        // EVENTO: Botón Editar
         editarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -49,19 +48,16 @@ public class LoginForm extends JDialog {
         });
     }
 
-    // Método para llenar la JTable con los datos de tu BD
+    // Método para llenar la JTable con los datos de ejemplo
     private void llenarTabla() {
-        // Creamos las columnas que llevará nuestra tabla
         String[] columnas = {"Código", "Nombre de Cuenta", "Tipo de Cuenta", "Estado"};
         DefaultTableModel modeloTabla = new DefaultTableModel(columnas, 0);
 
         try {
-            // TODO: Aquí llamarás a tu capa de datos (TipoCuentaDAO)
-            // Ejemplo de cómo agregar una fila manual para probar que pinte en pantalla:
+            // Ejemplo de fila manual para probar el diseño visual:
             Object[] filaEjemplo = {"1101", "Caja General", "Activo", "Vigente"};
             modeloTabla.addRow(filaEjemplo);
 
-            // Le inyectamos el modelo con los datos a tu componente table1
             table1.setModel(modeloTabla);
 
         } catch (Exception ex) {
