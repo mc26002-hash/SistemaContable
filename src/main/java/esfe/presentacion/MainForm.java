@@ -91,8 +91,14 @@ public class MainForm extends JFrame {
 
         // Eventos
         itemCatalogoCuentas.addActionListener(e -> mostrarModuloPendiente());
-        itemTipoDocumentoFiscal.addActionListener(e -> mostrarModuloPendiente());
+
+        itemTipoDocumentoFiscal.addActionListener(e -> {
+            TipoDocumentoFiscalForm form = new TipoDocumentoFiscalForm(this);
+            form.setVisible(true);
+        });
+
         itemAsientos.addActionListener(e -> mostrarModuloPendiente());
+
         itemPeriodos.addActionListener(e -> mostrarModuloPendiente());
 
         // =========================
