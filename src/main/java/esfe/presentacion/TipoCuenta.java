@@ -30,20 +30,20 @@ public class TipoCuenta extends JDialog {
         llenarTabla();
 
         // 2. EVENTO: Al dar clic en "Nueva Cuenta", abre la ventana de creación
-        nuevaCuentaButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Pasamos 'TipoCuenta.this' como la ventana padre legítima
-                CrearCuentaForm pantallaCrear = new CrearCuentaForm(TipoCuenta.this);
-                pantallaCrear.setVisible(true);
-            }
-        });
+
 
         // EVENTO: Botón Editar
         editarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Aquí irá la lógica para modificar una cuenta seleccionada
+            }
+        });
+        // <-- El bloque vacío que estaba aquí ya fue eliminado con éxito
+        nuevaCuentaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
             }
         });
     }
