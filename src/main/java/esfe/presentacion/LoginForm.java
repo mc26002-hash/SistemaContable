@@ -78,12 +78,5 @@ public class LoginForm extends JDialog {
                     JOptionPane.ERROR_MESSAGE
             );
         }
-
-    }
-    public static void main(String[] args) {
-        LoginForm loginForm = new LoginForm();
-        loginForm.setVisible(true);
     }
 }
-
-
