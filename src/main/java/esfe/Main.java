@@ -1,11 +1,20 @@
+
 package esfe;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import esfe.presentación.MainForm;
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+
+        SwingUtilities.invokeLater(() -> {
+
+            MainForm mainForm = new MainForm();
+            mainForm.setTitle("Sistema Contable - Registro de Partidas");
+            mainForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            mainForm.setSize(700, 500);
+            mainForm.setLocationRelativeTo(null); // Centra la pantalla
+            mainForm.setVisible(true);
+        });
     }
 }
