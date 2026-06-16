@@ -51,6 +51,7 @@ public class RolListadoForm extends JFrame {
         btnModificar.setOpaque(true);
         btnModificar.setBorderPainted(false);
 
+
         btnEliminar = new JButton("Eliminar Rol");
         btnEliminar.setBackground(new Color(198, 40, 40));
         btnEliminar.setForeground(Color.WHITE);
