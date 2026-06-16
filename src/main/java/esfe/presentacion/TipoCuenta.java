@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
 public class TipoCuenta extends JDialog {
 
@@ -20,11 +21,10 @@ public class TipoCuenta extends JDialog {
     private JButton deshabilitarButton;
     private JLabel lblTitulo2;
     private JButton buscarButton;
-
-    // ─── CORREGIDO: Ahora se llama exactamente 'mostrarTodos' como en tu .form ───
     private JButton mostrarTodos;
 
-    // Credenciales de tu servidor en Somee
+    private ArrayList<Integer> listaIdsInternos = new ArrayList<>();
+
     private final String url = "jdbc:sqlserver://ContabilidadESFE.mssql.somee.com:1433;databaseName=ContabilidadESFE;encrypt=true;trustServerCertificate=true;";
     private final String usuario = "ContabilidadGab_SQLLogin_1";
     private final String password = "a7l6kuot7x";
@@ -37,7 +37,6 @@ public class TipoCuenta extends JDialog {
         pack();
         setLocationRelativeTo(padre);
 
-        // Carga inicial de datos al abrir
         llenarTabla();
 
         // 1. EVENTO: Nueva Cuenta
@@ -55,8 +54,8 @@ public class TipoCuenta extends JDialog {
                 return;
             }
 
-            int id = (int) table1.getValueAt(filaSeleccionada, 0);
-            String nombreActual = (String) table1.getValueAt(filaSeleccionada, 1);
+            int id = listaIdsInternos.get(filaSeleccionada);
+            String nombreActual = (String) table1.getValueAt(filaSeleccionada, 0);
 
             String nuevoNombre = JOptionPane.showInputDialog(this, "Modificar nombre de la cuenta:", nombreActual);
             if (nuevoNombre != null && !nuevoNombre.trim().isEmpty()) {
@@ -73,8 +72,8 @@ public class TipoCuenta extends JDialog {
                 return;
             }
 
-            int id = (int) table1.getValueAt(filaSeleccionada, 0);
-            String nombre = (String) table1.getValueAt(filaSeleccionada, 1);
+            int id = listaIdsInternos.get(filaSeleccionada);
+            String nombre = (String) table1.getValueAt(filaSeleccionada, 0);
 
             int respuesta = JOptionPane.showConfirmDialog(this,
                     "¿Está seguro que desea eliminar el tipo de cuenta '" + nombre + "'?",
@@ -86,25 +85,20 @@ public class TipoCuenta extends JDialog {
             }
         });
 
-        // 4. EVENTO: Buscar por ID
+        // 4. EVENTO: Buscar por Nombre (¡MODIFICADO!)
         buscarButton.addActionListener(e -> {
-            String idBusqueda = JOptionPane.showInputDialog(this, "Ingrese el ID exacto que desea buscar:");
+            String textoBusqueda = JOptionPane.showInputDialog(this, "Ingrese el nombre (o la letra inicial) a buscar:");
 
-            if (idBusqueda == null) return;
+            if (textoBusqueda == null) return; // Si cancela, no hace nada
 
-            if (idBusqueda.trim().isEmpty()) {
-                llenarTabla();
+            if (textoBusqueda.trim().isEmpty()) {
+                llenarTabla(); // Si lo deja vacío, muestra todos
             } else {
-                try {
-                    int idInt = Integer.parseInt(idBusqueda.trim());
-                    buscarPorIdEnSomee(idInt);
-                } catch (NumberFormatException nfe) {
-                    JOptionPane.showMessageDialog(this, "Por favor, ingrese un número entero válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
-                }
+                buscarPorNombreEnSomee(textoBusqueda.trim()); // Llama al nuevo buscador por texto
             }
         });
 
-        // 5. EVENTO: ─── CORREGIDO CON TU NUEVO NOMBRE 'mostrarTodos' ───
+        // 5. EVENTO: Mostrar Todos
         mostrarTodos.addActionListener(e -> {
             llenarTabla();
         });
@@ -112,8 +106,10 @@ public class TipoCuenta extends JDialog {
 
     // Carga completa de la tabla
     private void llenarTabla() {
-        String[] columnas = {"Código (Id)", "Nombre de Tipo", "Naturaleza"};
+        String[] columnas = {"Nombre de Tipo", "Naturaleza"};
         DefaultTableModel modeloTabla = new DefaultTableModel(columnas, 0);
+
+        listaIdsInternos.clear();
         String sql = "SELECT TipoCuentaId, NombreTipo, Naturaleza FROM TiposCuenta";
 
         try (Connection con = DriverManager.getConnection(url, usuario, password);
@@ -121,11 +117,12 @@ public class TipoCuenta extends JDialog {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Object[] fila = new Object[3];
-                fila[0] = rs.getInt("TipoCuentaId");
-                fila[1] = rs.getString("NombreTipo");
+                listaIdsInternos.add(rs.getInt("TipoCuentaId"));
+
+                Object[] fila = new Object[2];
+                fila[0] = rs.getString("NombreTipo");
                 String nat = rs.getString("Naturaleza");
-                fila[2] = (nat != null && nat.equalsIgnoreCase("H")) ? "Haber (Pasivo/Patr./Ing.)" : "Debe (Activo/Gasto)";
+                fila[1] = (nat != null && nat.equalsIgnoreCase("H")) ? "Haber (Pasivo/Patr./Ing.)" : "Debe (Activo/Gasto)";
                 modeloTabla.addRow(fila);
             }
         } catch (Exception ex) {
@@ -134,32 +131,38 @@ public class TipoCuenta extends JDialog {
         table1.setModel(modeloTabla);
     }
 
-    // Filtrar búsqueda por ID
-    private void buscarPorIdEnSomee(int idBuscado) {
-        String[] columnas = {"Código (Id)", "Nombre de Tipo", "Naturaleza"};
+    // ─── LÓGICA DE BÚSQUEDA POR TEXTO (LIKE ?) ───
+    private void buscarPorNombreEnSomee(String textoBuscado) {
+        String[] columnas = {"Nombre de Tipo", "Naturaleza"};
         DefaultTableModel modeloTabla = new DefaultTableModel(columnas, 0);
-        String sql = "SELECT TipoCuentaId, NombreTipo, Naturaleza FROM TiposCuenta WHERE TipoCuentaId = ?";
+
+        listaIdsInternos.clear();
+
+        // Usamos LIKE con el comodín al final para buscar lo que EMPIECE con ese texto
+        String sql = "SELECT TipoCuentaId, NombreTipo, Naturaleza FROM TiposCuenta WHERE NombreTipo LIKE ?";
 
         try (Connection con = DriverManager.getConnection(url, usuario, password);
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, idBuscado);
+            // Configuramos el parámetro agregándole el '%' al final. Ejemplo: "Act%"
+            ps.setString(1, textoBuscado + "%");
             ResultSet rs = ps.executeQuery();
 
             boolean seEncontro = false;
             while (rs.next()) {
                 seEncontro = true;
-                Object[] fila = new Object[3];
-                fila[0] = rs.getInt("TipoCuentaId");
-                fila[1] = rs.getString("NombreTipo");
+                listaIdsInternos.add(rs.getInt("TipoCuentaId")); // Guardamos su ID oculto para que Editar/Borrar sigan funcionando
+
+                Object[] fila = new Object[2];
+                fila[0] = rs.getString("NombreTipo");
                 String nat = rs.getString("Naturaleza");
-                fila[2] = (nat != null && nat.equalsIgnoreCase("H")) ? "Haber (Pasivo/Patr./Ing.)" : "Debe (Activo/Gasto)";
+                fila[1] = (nat != null && nat.equalsIgnoreCase("H")) ? "Haber (Pasivo/Patr./Ing.)" : "Debe (Activo/Gasto)";
                 modeloTabla.addRow(fila);
             }
             rs.close();
 
             if (!seEncontro) {
-                JOptionPane.showMessageDialog(this, "No se encontró ningún tipo de cuenta con el ID: " + idBuscado, "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "No se encontró ningún tipo de cuenta que empiece con: " + textoBuscado, "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
                 llenarTabla();
                 return;
             }
