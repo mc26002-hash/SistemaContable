@@ -8,10 +8,9 @@ import java.sql.PreparedStatement;
 public class CrearCuentaForm extends JDialog {
 
     private JPanel mainPanel;
-    private JTextField txtCodigo;  // Visual/Ignorado en el INSERT (porque es autoincrementable)
+    // ─── LIMPIEZA: Se eliminaron txtCodigo y txtEstado ───
     private JTextField txtNombre;  // Mapea a NombreTipo
     private JTextField txtTipo;    // Mapea a Naturaleza ('D' o 'H')
-    private JTextField txtEstado;  // Visual/Ignorado
     private JButton btnGuardar;
     private JButton btnCancelar;
     private JLabel lblTitulo;
@@ -32,7 +31,7 @@ public class CrearCuentaForm extends JDialog {
         String nombre = txtNombre.getText().trim();
         String tipoStr = txtTipo.getText().trim();
 
-        // ─── CORREGIDO: Ya no es obligatorio validar el código aquí ───
+        // Validamos únicamente los campos que sí se van a guardar
         if (nombre.isEmpty() || tipoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, complete los campos Nombre y Tipo.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
             return;
@@ -42,7 +41,7 @@ public class CrearCuentaForm extends JDialog {
         String usuario = "ContabilidadGab_SQLLogin_1";
         String password = "a7l6kuot7x";
 
-        // ─── CORREGIDO: Quitamos TipoCuentaId para que SQL Server lo cree solo ───
+        // SQL Server genera el TipoCuentaId automáticamente
         String sql = "INSERT INTO TiposCuenta (NombreTipo, Naturaleza) VALUES (?, ?)";
 
         try {
@@ -59,7 +58,6 @@ public class CrearCuentaForm extends JDialog {
             if (con != null) {
                 PreparedStatement ps = con.prepareStatement(sql);
 
-                // ─── CORREGIDO: Ahora solo enviamos 2 parámetros ───
                 ps.setString(1, nombre);
                 ps.setString(2, String.valueOf(naturalezaChar));
 
