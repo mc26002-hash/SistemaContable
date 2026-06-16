@@ -1,74 +1,79 @@
 package esfe.presentacion;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 public class CrearCuentaForm extends JDialog {
 
-    // Componentes vinculados automáticamente con tu archivo .form
     private JPanel mainPanel;
-    private JTextField txtCodigo;
-    private JTextField txtNombre;
-    private JTextField txtTipo;
-    private JTextField txtEstado;
+    private JTextField txtCodigo;  // Visual/Ignorado en el INSERT (porque es autoincrementable)
+    private JTextField txtNombre;  // Mapea a NombreTipo
+    private JTextField txtTipo;    // Mapea a Naturaleza ('D' o 'H')
+    private JTextField txtEstado;  // Visual/Ignorado
     private JButton btnGuardar;
     private JButton btnCancelar;
     private JLabel lblTitulo;
 
-    // Quité las variables genéricas (textField1, etc.) para que tu código esté más limpio
-
-    // MODIFICADO: Ahora recibe directamente a TipoCuenta como ventana padre
     public CrearCuentaForm(TipoCuenta padre) {
-        super(padre, true); // Sigue siendo modal (bloquea la de atrás)
-
+        super(padre, true);
         setTitle("Nueva Cuenta");
-        setContentPane(mainPanel); // Vincula tu diseño visual
+        setContentPane(mainPanel);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         pack();
+        setLocationRelativeTo(padre);
 
-        if (padre != null) {
-            setLocationRelativeTo(padre); // Se centra justo encima del catálogo
-        } else {
-            setLocationRelativeTo(null); // Se centra en el medio de la pantalla
-        }
-
-        // EVENTO: Botón Cancelar
-        btnCancelar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose(); // Cierra esta ventana flotante sin hacer nada
-            }
-        });
-
-        // EVENTO: Botón Guardar
-        btnGuardar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                guardarRegistro();
-            }
-        });
+        btnCancelar.addActionListener(e -> dispose());
+        btnGuardar.addActionListener(e -> guardarRegistro());
     }
 
-    // Método para procesar los datos ingresados
     private void guardarRegistro() {
-        String codigo = txtCodigo.getText();
-        String nombre = txtNombre.getText();
-        String tipo = txtTipo.getText();
-        String estado = txtEstado.getText();
+        String nombre = txtNombre.getText().trim();
+        String tipoStr = txtTipo.getText().trim();
 
-        // Validación de que no dejen campos en blanco
-        if (codigo.isEmpty() || nombre.isEmpty() || tipo.isEmpty() || estado.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Por favor, complete todos los campos obligatorios.",
-                    "Campos Vacíos",
-                    JOptionPane.WARNING_MESSAGE);
+        // ─── CORREGIDO: Ya no es obligatorio validar el código aquí ───
+        if (nombre.isEmpty() || tipoStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, complete los campos Nombre y Tipo.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // TODO: Aquí conectarás con tu capa de negocio/datos para hacer el INSERT en SQL Server
+        String url = "jdbc:sqlserver://ContabilidadESFE.mssql.somee.com:1433;databaseName=ContabilidadESFE;encrypt=true;trustServerCertificate=true;";
+        String usuario = "ContabilidadGab_SQLLogin_1";
+        String password = "a7l6kuot7x";
 
-        JOptionPane.showMessageDialog(this, "¡Cuenta guardada exitosamente!");
-        dispose(); // Cierra la pantalla al terminar
+        // ─── CORREGIDO: Quitamos TipoCuentaId para que SQL Server lo cree solo ───
+        String sql = "INSERT INTO TiposCuenta (NombreTipo, Naturaleza) VALUES (?, ?)";
+
+        try {
+            // Mapeo automático de Naturaleza ('D' o 'H')
+            char naturalezaChar = 'D';
+            if (!tipoStr.isEmpty()) {
+                char inicial = Character.toUpperCase(tipoStr.charAt(0));
+                if (inicial == 'H' || inicial == 'P' || inicial == 'I' || inicial == 'A') {
+                    naturalezaChar = 'H';
+                }
+            }
+
+            Connection con = DriverManager.getConnection(url, usuario, password);
+            if (con != null) {
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                // ─── CORREGIDO: Ahora solo enviamos 2 parámetros ───
+                ps.setString(1, nombre);
+                ps.setString(2, String.valueOf(naturalezaChar));
+
+                int filasAfectadas = ps.executeUpdate();
+                ps.close();
+                con.close();
+
+                if (filasAfectadas > 0) {
+                    JOptionPane.showMessageDialog(this, "¡Registro guardado con éxito en Somee!");
+                    dispose();
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error de SQL Server: " + ex.getMessage(), "Error al Guardar", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
