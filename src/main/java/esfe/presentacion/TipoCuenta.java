@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+
 public class TipoCuenta extends JDialog {
 
     private JPanel mainPanel;
