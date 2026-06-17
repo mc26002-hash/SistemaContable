@@ -1,19 +1,17 @@
+
 package esfe;
 
-import esfe.presentacion.centroscosto.CentroCostoReadingForm;
+
+import esfe.presentacion.MainForm;
 
 import javax.swing.*;
 
 public class Main {
 
     public static void main(String[] args) {
-
         SwingUtilities.invokeLater(() -> {
-
-            CentroCostoReadingForm form =
-                    new CentroCostoReadingForm();
-
-            form.setVisible(true);
+            MainForm mainForm = new MainForm();
+            mainForm.setVisible(true);
         });
     }
 }
