@@ -77,9 +77,13 @@ public class MainForm extends JFrame {
         // Items de Catálogos
         JMenuItem itemCatalogoCuentas = new JMenuItem("Catálogo de Cuentas");
         JMenuItem itemTipoDocumentoFiscal = new JMenuItem("Tipos de Documento Fiscal");
+        JMenuItem itemTerceros = new JMenuItem("Terceros");
+        JMenuItem itemDocumentosFiscales = new JMenuItem("Documentos Fiscales");
 
         menuCatalogos.add(itemCatalogoCuentas);
         menuCatalogos.add(itemTipoDocumentoFiscal);
+        menuCatalogos.add(itemTerceros);
+        menuCatalogos.add(itemDocumentosFiscales);
 
         // Otros items de Contabilidad
         JMenuItem itemAsientos = new JMenuItem("Asientos Contables");
@@ -94,6 +98,16 @@ public class MainForm extends JFrame {
 
         itemTipoDocumentoFiscal.addActionListener(e -> {
             TipoDocumentoFiscalForm form = new TipoDocumentoFiscalForm(this);
+            form.setVisible(true);
+        });
+
+        itemTerceros.addActionListener(e -> {
+            TercerosForm form = new TercerosForm(this);
+            form.setVisible(true);
+        });
+
+        itemDocumentosFiscales.addActionListener(e -> {
+            DocumentoFiscalForm form = new DocumentoFiscalForm(this);
             form.setVisible(true);
         });
 
