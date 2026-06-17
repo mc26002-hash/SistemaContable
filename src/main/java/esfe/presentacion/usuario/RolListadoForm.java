@@ -1,4 +1,4 @@
-package presentacion;
+package esfe.presentacion.usuario;
 
 
 import esfe.dominio.Rol;
@@ -10,7 +10,7 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class RolListadoForm extends JFrame {
+public class RolListadoForm extends JDialog  {
     private JPanel panelListado;
     private JTable table1;
     private JButton btnAgregar;
@@ -23,7 +23,7 @@ public class RolListadoForm extends JFrame {
 
     public RolListadoForm() {
         setTitle("Sistema Contable - Registro General de Roles");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         panelListado = new JPanel(new BorderLayout(10, 10));
         panelListado.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));

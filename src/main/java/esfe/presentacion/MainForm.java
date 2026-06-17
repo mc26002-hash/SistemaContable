@@ -1,6 +1,26 @@
 package esfe.presentacion;
 
+import esfe.dominio.CentroCosto;
 import esfe.dominio.Usuario;
+import esfe.presentacion.contabilidad.DocumentoFiscalForm;
+import esfe.presentacion.contabilidad.TercerosForm;
+import esfe.presentacion.contabilidad.TipoDocumentoFiscalForm;
+
+import esfe.presentacion.centroscosto.CentroCostoReadingForm;
+import esfe.presentacion.centroscosto.CentroCostoWriteForm;
+
+import esfe.presentacion.contabilidad.DocumentoFiscalForm;
+import esfe.presentacion.contabilidad.TercerosForm;
+import esfe.presentacion.contabilidad.TipoDocumentoFiscalForm;
+import esfe.presentacion.contabilidad.TipoPartidaForm;
+
+import esfe.presentacion.contabilidad.tipocuenta.CrearCuentaForm;
+import esfe.presentacion.contabilidad.tipocuenta.TipoCuenta;
+
+import esfe.presentacion.usuario.ChangePasswordForm;
+import esfe.presentacion.usuario.RolListadoForm;
+import esfe.presentacion.usuario.UsuarioReadingForm;
+import esfe.utils.CUD;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +65,7 @@ public class MainForm extends JFrame {
         menuArchivo.addSeparator();
         menuArchivo.add(itemSalir);
 
+        itemInicio.addActionListener(e -> mostrarModuloPendiente());
         itemSalir.addActionListener(e -> System.exit(0));
 
         // =========================
@@ -53,16 +74,26 @@ public class MainForm extends JFrame {
         JMenu menuUsuarios = new JMenu("Usuarios");
         menuBar.add(menuUsuarios);
 
-        JMenuItem itemGestionUsuarios = new JMenuItem("Gestión de Usuarios");
+        JMenuItem itemUsuarios = new JMenuItem("Gestión de Usuarios");
+        JMenuItem itemRoles = new JMenuItem("Roles");
+        JMenuItem itemCambiarPassword = new JMenuItem("Cambiar Contraseña");
 
-        menuUsuarios.add(itemGestionUsuarios);
+        menuUsuarios.add(itemUsuarios);
+        menuUsuarios.add(itemRoles);
+        menuUsuarios.addSeparator();
+        menuUsuarios.add(itemCambiarPassword);
 
-        itemGestionUsuarios.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                    "Este módulo se integrará después.",
-                    "Módulo pendiente",
-                    JOptionPane.INFORMATION_MESSAGE);
+        itemUsuarios.addActionListener(e -> {
+            UsuarioReadingForm form = new UsuarioReadingForm();
+            form.setVisible(true);
         });
+
+        itemRoles.addActionListener(e -> {
+            RolListadoForm form = new RolListadoForm();
+            form.setVisible(true);
+        });
+
+        itemCambiarPassword.addActionListener(e -> mostrarModuloPendiente());
 
         // =========================
         // MENÚ CONTABILIDAD
@@ -70,39 +101,62 @@ public class MainForm extends JFrame {
         JMenu menuContabilidad = new JMenu("Contabilidad");
         menuBar.add(menuContabilidad);
 
-        // Submenú Catálogos
         JMenu menuCatalogos = new JMenu("Catálogos");
+        JMenu menuCuentas = new JMenu("Cuentas Contables");
+        JMenu menuDocumentos = new JMenu("Documentos Fiscales");
+
         menuContabilidad.add(menuCatalogos);
+        menuContabilidad.add(menuCuentas);
+        menuContabilidad.add(menuDocumentos);
 
-        // Items de Catálogos
-        JMenuItem itemCatalogoCuentas = new JMenuItem("Catálogo de Cuentas");
-        JMenuItem itemTipoDocumentoFiscal = new JMenuItem("Tipos de Documento Fiscal");
         JMenuItem itemTerceros = new JMenuItem("Terceros");
-        JMenuItem itemDocumentosFiscales = new JMenuItem("Documentos Fiscales");
+        JMenuItem itemTipoDocumentoFiscal = new JMenuItem("Tipos de Documento Fiscal");
+        JMenuItem itemTipoPartida = new JMenuItem("Tipos de Partida");
 
-        menuCatalogos.add(itemCatalogoCuentas);
-        menuCatalogos.add(itemTipoDocumentoFiscal);
         menuCatalogos.add(itemTerceros);
-        menuCatalogos.add(itemDocumentosFiscales);
+        menuCatalogos.add(itemTipoDocumentoFiscal);
+        menuCatalogos.add(itemTipoPartida);
 
-        // Otros items de Contabilidad
+        JMenuItem itemTipoCuenta = new JMenuItem("Tipos de Cuenta");
+        JMenuItem itemCrearCuenta = new JMenuItem("Crear Cuenta");
+
+        menuCuentas.add(itemTipoCuenta);
+        menuCuentas.add(itemCrearCuenta);
+
+        JMenuItem itemDocumentosFiscales = new JMenuItem("Gestión de Documentos Fiscales");
+
+        menuDocumentos.add(itemDocumentosFiscales);
+
+        menuContabilidad.addSeparator();
+
         JMenuItem itemAsientos = new JMenuItem("Asientos Contables");
         JMenuItem itemPeriodos = new JMenuItem("Cierre de Periodos");
 
-        menuContabilidad.addSeparator();
         menuContabilidad.add(itemAsientos);
         menuContabilidad.add(itemPeriodos);
 
-        // Eventos
-        itemCatalogoCuentas.addActionListener(e -> mostrarModuloPendiente());
+        itemTerceros.addActionListener(e -> {
+            TercerosForm form = new TercerosForm(this);
+            form.setVisible(true);
+        });
 
         itemTipoDocumentoFiscal.addActionListener(e -> {
             TipoDocumentoFiscalForm form = new TipoDocumentoFiscalForm(this);
             form.setVisible(true);
         });
 
-        itemTerceros.addActionListener(e -> {
-            TercerosForm form = new TercerosForm(this);
+        itemTipoPartida.addActionListener(e -> {
+            TipoPartidaForm form = new TipoPartidaForm(this);
+            form.setVisible(true);
+        });
+
+        itemTipoCuenta.addActionListener(e -> {
+            TipoCuenta form = new TipoCuenta(this);
+            form.setVisible(true);
+        });
+
+        itemCrearCuenta.addActionListener(e -> {
+            TipoCuenta form = new TipoCuenta(this);
             form.setVisible(true);
         });
 
@@ -112,8 +166,30 @@ public class MainForm extends JFrame {
         });
 
         itemAsientos.addActionListener(e -> mostrarModuloPendiente());
-
         itemPeriodos.addActionListener(e -> mostrarModuloPendiente());
+
+        // =========================
+        // MENÚ CENTROS DE COSTO
+        // =========================
+        JMenu menuCentrosCosto = new JMenu("Centros de Costo");
+        menuBar.add(menuCentrosCosto);
+
+        JMenuItem itemVerCentrosCosto = new JMenuItem("Ver Centros de Costo");
+        JMenuItem itemCrearCentroCosto = new JMenuItem("Crear Centro de Costo");
+
+        menuCentrosCosto.add(itemVerCentrosCosto);
+        menuCentrosCosto.add(itemCrearCentroCosto);
+
+        itemVerCentrosCosto.addActionListener(e -> {
+            CentroCostoReadingForm form = new CentroCostoReadingForm();
+            form.setVisible(true);
+        });
+
+        itemCrearCentroCosto.addActionListener(e -> {
+            CentroCosto centroCosto = new CentroCosto();
+            CentroCostoWriteForm form = new CentroCostoWriteForm(CUD.CREATE, centroCosto);
+            form.setVisible(true);
+        });
 
         // =========================
         // MENÚ REPORTES
@@ -139,13 +215,10 @@ public class MainForm extends JFrame {
         JMenu menuHerramientas = new JMenu("Herramientas");
         menuBar.add(menuHerramientas);
 
-        JMenuItem itemCierrePeriodos = new JMenuItem("Cierre de Periodos");
         JMenuItem itemCalculadora = new JMenuItem("Calculadora");
 
-        menuHerramientas.add(itemCierrePeriodos);
         menuHerramientas.add(itemCalculadora);
 
-        itemCierrePeriodos.addActionListener(e -> mostrarModuloPendiente());
         itemCalculadora.addActionListener(e -> mostrarModuloPendiente());
 
         // =========================

@@ -1,7 +1,8 @@
-package esfe.presentacion;
+package esfe.presentacion.contabilidad;
 
 import esfe.dominio.Tercero;
 import esfe.persistencia.TerceroDAO;
+import esfe.presentacion.MainForm;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

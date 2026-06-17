@@ -1,9 +1,7 @@
-package esfe.presentacion;
+package esfe.presentacion.contabilidad.tipocuenta;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

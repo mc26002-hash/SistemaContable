@@ -1,4 +1,4 @@
-package esfe.presentacion;
+package esfe.presentacion.contabilidad.tipocuenta;
 
 import javax.swing.*;
 import java.sql.Connection;
