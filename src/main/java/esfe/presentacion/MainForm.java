@@ -27,22 +27,10 @@ public class MainForm extends JFrame {
         this.usuarioAutenticado = usuarioAutenticado;
     }
 
-    //CON LOGIN
-//    public MainForm(Usuario usuarioAutenticado) {
-//        this.usuarioAutenticado = usuarioAutenticado;
-//
-//        setTitle("Panel Principal - Sistema Contable");
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        setSize(1100, 600);
-//        setLocationRelativeTo(null);
-//        setExtendedState(JFrame.MAXIMIZED_BOTH);
-//
-//        createMenu();
-//        createMainPanel();
-//    }
+//    CON LOGIN
+    public MainForm(Usuario usuarioAutenticado) {
+        this.usuarioAutenticado = usuarioAutenticado;
 
-    //SIN LOGIN
-    public MainForm() {
         setTitle("Panel Principal - Sistema Contable");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 600);
@@ -52,6 +40,18 @@ public class MainForm extends JFrame {
         createMenu();
         createMainPanel();
     }
+
+    //SIN LOGIN
+//    public MainForm() {
+//        setTitle("Panel Principal - Sistema Contable");
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(1100, 600);
+//        setLocationRelativeTo(null);
+//        setExtendedState(JFrame.MAXIMIZED_BOTH);
+//
+//        createMenu();
+//        createMainPanel();
+//    }
 
     private void createMenu() {
         JMenuBar menuBar = new JMenuBar();
