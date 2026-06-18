@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>esfe</groupId>
@@ -29,18 +30,106 @@
         </dependency>
 
         <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-intellij-themes</artifactId>
+            <version>3.7.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf-intellij-themes</artifactId>
-            <version>3.7.1</version>
-        </dependency>
-
     </dependencies>
+
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+
+                    <archive>
+                        <manifest>
+                            <mainClass>esfe.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>2.7.0</version>
+
+                <executions>
+                    <execution>
+                        <id>launch4j</id>
+                        <phase>package</phase>
+
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+
+                        <configuration>
+
+                            <headerType>gui</headerType>
+
+                            <jar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</jar>
+
+                            <outfile>${project.build.directory}/SistemaContable.exe</outfile>
+
+                            <dontWrapJar>false</dontWrapJar>
+
+                            <versionInfo>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <txtFileVersion>1.0.0.0</txtFileVersion>
+
+                                <fileDescription>Sistema Contable</fileDescription>
+
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>1.0.0.0</txtProductVersion>
+
+                                <productName>Sistema Contable</productName>
+
+                                <companyName>ESFE</companyName>
+
+                                <internalName>SistemaContable</internalName>
+
+                                <originalFilename>SistemaContable.exe</originalFilename>
+                            </versionInfo>
+
+                            <jre>
+                                <minVersion>21</minVersion>
+                            </jre>
+
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
 
 </project>
