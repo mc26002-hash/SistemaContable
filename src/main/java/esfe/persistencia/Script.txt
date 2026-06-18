@@ -1,0 +1,471 @@
+USE ContabilidadESFE;
+GO
+
+
+/* =====================================================
+   NIVEL 1: TABLAS INDEPENDIENTES
+   ===================================================== */
+
+CREATE TABLE Roles (
+    RolId INT IDENTITY(1,1) PRIMARY KEY,
+    NombreRol NVARCHAR(50) NOT NULL UNIQUE,
+    Descripcion NVARCHAR(250) NULL,
+    Activo BIT NOT NULL DEFAULT 1
+);
+GO
+
+CREATE TABLE TiposCuenta (
+    TipoCuentaId INT IDENTITY(1,1) PRIMARY KEY,
+    NombreTipo NVARCHAR(50) NOT NULL UNIQUE,
+    Naturaleza CHAR(1) NOT NULL,
+    CONSTRAINT CK_TiposCuenta_Naturaleza
+        CHECK (Naturaleza IN ('D','H'))
+);
+GO
+
+CREATE TABLE TiposPartida (
+    TipoPartidaId INT IDENTITY(1,1) PRIMARY KEY,
+    NombreTipo NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE TiposDocumentoFiscal (
+    TipoDocumentoFiscalId INT IDENTITY(1,1) PRIMARY KEY,
+    Codigo NVARCHAR(10) NOT NULL UNIQUE,
+    Nombre NVARCHAR(100) NOT NULL
+);
+GO
+
+
+/* =====================================================
+   NIVEL 2: TABLAS QUE DEPENDEN DE NIVEL 1
+   ===================================================== */
+
+CREATE TABLE Usuarios (
+    UsuarioId INT IDENTITY(1,1) PRIMARY KEY,
+    RolId INT NOT NULL,
+    NombreUsuario NVARCHAR(50) NOT NULL,
+    PasswordHash VARBINARY(256) NOT NULL,
+    NombreCompleto NVARCHAR(150) NOT NULL,
+    CorreoElectronico NVARCHAR(150) NOT NULL,
+    Activo BIT NOT NULL DEFAULT 1,
+
+    CONSTRAINT FK_Usuarios_Roles
+        FOREIGN KEY (RolId) REFERENCES Roles(RolId),
+
+    CONSTRAINT UQ_Usuarios_NombreUsuario
+        UNIQUE (NombreUsuario),
+
+    CONSTRAINT UQ_Usuarios_Correo
+        UNIQUE (CorreoElectronico)
+);
+GO
+
+CREATE TABLE CentrosCosto (
+    CentroCostoId INT IDENTITY(1,1) PRIMARY KEY,
+    Codigo NVARCHAR(20) NOT NULL UNIQUE,
+    Nombre NVARCHAR(100) NOT NULL,
+    Responsable NVARCHAR(150) NULL,
+    Presupuesto DECIMAL(18,2) NOT NULL DEFAULT 0,
+    Activo BIT NOT NULL DEFAULT 1
+);
+GO
+
+CREATE TABLE CuentasContables (
+    CuentaId INT IDENTITY(1,1) PRIMARY KEY,
+    TipoCuentaId INT NOT NULL,
+    CuentaPadreId INT NULL,
+    CodigoCuenta NVARCHAR(20) NOT NULL UNIQUE,
+    NombreCuenta NVARCHAR(150) NOT NULL,
+    PermiteMovimiento BIT NOT NULL DEFAULT 1,
+    Activa BIT NOT NULL DEFAULT 1,
+
+    CONSTRAINT FK_CuentasContables_TiposCuenta
+        FOREIGN KEY (TipoCuentaId) REFERENCES TiposCuenta(TipoCuentaId),
+
+    CONSTRAINT FK_CuentasContables_CuentaPadre
+        FOREIGN KEY (CuentaPadreId) REFERENCES CuentasContables(CuentaId)
+);
+GO
+
+CREATE TABLE Terceros (
+    TerceroId INT IDENTITY(1,1) PRIMARY KEY,
+    TipoTercero NVARCHAR(20) NOT NULL,
+    Nombre NVARCHAR(150) NOT NULL,
+    NIT NVARCHAR(20) NULL,
+    NRC NVARCHAR(20) NULL,
+    Correo NVARCHAR(150) NULL,
+    Telefono NVARCHAR(30) NULL,
+    Activo BIT NOT NULL DEFAULT 1,
+
+    CONSTRAINT CK_Terceros_TipoTercero
+        CHECK (TipoTercero IN ('Cliente','Proveedor','Ambos'))
+);
+GO
+
+
+/* =====================================================
+   NIVEL 3: PERÍODOS CONTABLES
+   ===================================================== */
+
+CREATE TABLE PeriodosContables (
+    PeriodoId INT IDENTITY(1,1) PRIMARY KEY,
+    Anio INT NOT NULL,
+    Mes INT NOT NULL,
+    Estado NVARCHAR(20) NOT NULL DEFAULT 'Abierto',
+    CerradoPorUsuarioId INT NULL,
+    FechaCierre DATETIME2 NULL,
+
+    CONSTRAINT FK_PeriodosContables_Usuarios
+        FOREIGN KEY (CerradoPorUsuarioId) REFERENCES Usuarios(UsuarioId),
+
+    CONSTRAINT CK_PeriodosContables_Mes
+        CHECK (Mes BETWEEN 1 AND 12),
+
+    CONSTRAINT CK_PeriodosContables_Estado
+        CHECK (Estado IN ('Abierto','Cerrado')),
+
+    CONSTRAINT UQ_PeriodosContables_Anio_Mes
+        UNIQUE (Anio, Mes)
+);
+GO
+
+
+/* =====================================================
+   NIVEL 4: PARTIDAS CONTABLES
+   ===================================================== */
+
+CREATE TABLE PartidasContables (
+    PartidaId INT IDENTITY(1,1) PRIMARY KEY,
+    PeriodoId INT NOT NULL,
+    TipoPartidaId INT NOT NULL,
+    NumeroPartida NVARCHAR(30) NOT NULL UNIQUE,
+    Fecha DATE NOT NULL,
+    ConceptoGeneral NVARCHAR(250) NOT NULL,
+    Estado NVARCHAR(20) NOT NULL DEFAULT 'Borrador',
+    CreadaPorUsuarioId INT NOT NULL,
+    FechaCreacion DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    AnuladaPorUsuarioId INT NULL,
+    FechaAnulacion DATETIME2 NULL,
+    MotivoAnulacion NVARCHAR(300) NULL,
+
+    CONSTRAINT FK_PartidasContables_Periodos
+        FOREIGN KEY (PeriodoId) REFERENCES PeriodosContables(PeriodoId),
+
+    CONSTRAINT FK_PartidasContables_TiposPartida
+        FOREIGN KEY (TipoPartidaId) REFERENCES TiposPartida(TipoPartidaId),
+
+    CONSTRAINT FK_PartidasContables_UsuarioCreacion
+        FOREIGN KEY (CreadaPorUsuarioId) REFERENCES Usuarios(UsuarioId),
+
+    CONSTRAINT FK_PartidasContables_UsuarioAnulacion
+        FOREIGN KEY (AnuladaPorUsuarioId) REFERENCES Usuarios(UsuarioId),
+
+    CONSTRAINT CK_PartidasContables_Estado
+        CHECK (Estado IN ('Borrador','Contabilizada','Anulada'))
+);
+GO
+
+CREATE TABLE DetallesPartida (
+    DetallePartidaId INT IDENTITY(1,1) PRIMARY KEY,
+    PartidaId INT NOT NULL,
+    CuentaId INT NOT NULL,
+    CentroCostoId INT NULL,
+    Descripcion NVARCHAR(250) NULL,
+    Debe DECIMAL(18,2) NOT NULL DEFAULT 0,
+    Haber DECIMAL(18,2) NOT NULL DEFAULT 0,
+
+    CONSTRAINT FK_DetallesPartida_Partidas
+        FOREIGN KEY (PartidaId) REFERENCES PartidasContables(PartidaId),
+
+    CONSTRAINT FK_DetallesPartida_Cuentas
+        FOREIGN KEY (CuentaId) REFERENCES CuentasContables(CuentaId),
+
+    CONSTRAINT FK_DetallesPartida_CentrosCosto
+        FOREIGN KEY (CentroCostoId) REFERENCES CentrosCosto(CentroCostoId),
+
+    CONSTRAINT CK_DetallesPartida_DebeHaber
+        CHECK (
+            Debe >= 0 AND Haber >= 0
+            AND (
+                (Debe > 0 AND Haber = 0)
+                OR
+                (Debe = 0 AND Haber > 0)
+            )
+        )
+);
+GO
+
+
+/* =====================================================
+   NIVEL 5: DOCUMENTOS FISCALES Y RETENCIONES
+   ===================================================== */
+
+CREATE TABLE DocumentosFiscales (
+    DocumentoFiscalId INT IDENTITY(1,1) PRIMARY KEY,
+    TerceroId INT NOT NULL,
+    TipoDocumentoFiscalId INT NOT NULL,
+    PartidaId INT NULL,
+    TipoLibro NVARCHAR(20) NOT NULL,
+    NumeroDocumento NVARCHAR(50) NOT NULL,
+    FechaDocumento DATE NOT NULL,
+    MontoExento DECIMAL(18,2) NOT NULL DEFAULT 0,
+    MontoGravado DECIMAL(18,2) NOT NULL DEFAULT 0,
+    IVA DECIMAL(18,2) NOT NULL DEFAULT 0,
+    Total DECIMAL(18,2) NOT NULL,
+    AplicaRetencion BIT NOT NULL DEFAULT 0,
+
+    CONSTRAINT FK_DocumentosFiscales_Terceros
+        FOREIGN KEY (TerceroId) REFERENCES Terceros(TerceroId),
+
+    CONSTRAINT FK_DocumentosFiscales_TiposDocumento
+        FOREIGN KEY (TipoDocumentoFiscalId) REFERENCES TiposDocumentoFiscal(TipoDocumentoFiscalId),
+
+    CONSTRAINT FK_DocumentosFiscales_Partidas
+        FOREIGN KEY (PartidaId) REFERENCES PartidasContables(PartidaId),
+
+    CONSTRAINT CK_DocumentosFiscales_TipoLibro
+        CHECK (TipoLibro IN ('Compra','Venta')),
+
+    CONSTRAINT CK_DocumentosFiscales_Montos
+        CHECK (
+            MontoExento >= 0
+            AND MontoGravado >= 0
+            AND IVA >= 0
+            AND Total >= 0
+        )
+);
+GO
+
+CREATE TABLE Retenciones (
+    RetencionId INT IDENTITY(1,1) PRIMARY KEY,
+    DocumentoFiscalId INT NOT NULL,
+    TipoRetencion NVARCHAR(20) NOT NULL,
+    Porcentaje DECIMAL(5,2) NOT NULL,
+    MontoBase DECIMAL(18,2) NOT NULL,
+    MontoRetenido DECIMAL(18,2) NOT NULL,
+
+    CONSTRAINT FK_Retenciones_DocumentosFiscales
+        FOREIGN KEY (DocumentoFiscalId) REFERENCES DocumentosFiscales(DocumentoFiscalId),
+
+    CONSTRAINT CK_Retenciones_TipoRetencion
+        CHECK (TipoRetencion IN ('IVA','ISR')),
+
+    CONSTRAINT CK_Retenciones_Montos
+        CHECK (
+            Porcentaje > 0
+            AND MontoBase >= 0
+            AND MontoRetenido >= 0
+        )
+);
+GO
+
+
+/* =====================================================
+   NIVEL 6: AUDITORÍA SIMPLE
+   ===================================================== */
+
+CREATE TABLE ReaperturasPeriodo (
+    ReaperturaPeriodoId INT IDENTITY(1,1) PRIMARY KEY,
+    PeriodoId INT NOT NULL,
+    UsuarioId INT NOT NULL,
+    Motivo NVARCHAR(300) NOT NULL,
+    FechaReapertura DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+
+    CONSTRAINT FK_ReaperturasPeriodo_Periodos
+        FOREIGN KEY (PeriodoId) REFERENCES PeriodosContables(PeriodoId),
+
+    CONSTRAINT FK_ReaperturasPeriodo_Usuarios
+        FOREIGN KEY (UsuarioId) REFERENCES Usuarios(UsuarioId)
+);
+GO
+
+CREATE TABLE BitacoraSistema (
+    BitacoraId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioId INT NULL,
+    Accion NVARCHAR(50) NOT NULL,
+    TablaAfectada NVARCHAR(100) NOT NULL,
+    Descripcion NVARCHAR(500) NOT NULL,
+    FechaHora DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+
+    CONSTRAINT FK_BitacoraSistema_Usuarios
+        FOREIGN KEY (UsuarioId) REFERENCES Usuarios(UsuarioId)
+);
+GO
+
+
+
+/* =====================================================
+   INSERCIÓN DE DATOS INICIALES
+   ===================================================== */
+
+/* =========================
+   ROLES
+   ========================= */
+INSERT INTO Roles (NombreRol, Descripcion, Activo)
+VALUES
+('Administrador', 'Acceso completo al sistema', 1),
+('Contador', 'Gestiona partidas, documentos fiscales y reportes', 1),
+('Auxiliar Contable', 'Registra documentos y centros de costo', 1);
+
+
+/* =========================
+   USUARIOS
+   ========================= */
+
+INSERT INTO Usuarios
+(RolId, NombreUsuario, PasswordHash, NombreCompleto, CorreoElectronico, Activo)
+VALUES
+(1, 'admin', CONVERT(VARBINARY(256), '123456'), 'Administrador General', 'admin@sistema.com', 1),
+(2, 'contador01', CONVERT(VARBINARY(256), '123456'), 'Carlos Moran', 'contador@sistema.com', 1),
+(3, 'auxiliar01', CONVERT(VARBINARY(256), '123456'), 'Ana López', 'auxiliar@sistema.com', 1);
+
+UPDATE Usuarios
+SET PasswordHash = HASHBYTES('SHA2_256', CONVERT(VARCHAR(100), '123456'))
+WHERE NombreUsuario IN ('admin', 'contador01', 'auxiliar01');
+
+
+/* =========================
+   TIPOS DE CUENTA
+   D = Deudora, H = Acreedora
+   ========================= */
+INSERT INTO TiposCuenta (NombreTipo, Naturaleza)
+VALUES
+('Activo', 'D'),
+('Pasivo', 'H'),
+('Patrimonio', 'H'),
+('Ingreso', 'H'),
+('Gasto', 'D');
+
+
+/* =========================
+   TIPOS DE PARTIDA
+   ========================= */
+INSERT INTO TiposPartida (NombreTipo)
+VALUES
+('Ingreso'),
+('Egreso'),
+('Diario'),
+('Ajuste');
+
+
+/* =========================
+   TIPOS DE DOCUMENTO FISCAL
+   ========================= */
+INSERT INTO TiposDocumentoFiscal (Codigo, Nombre)
+VALUES
+('CCF', 'Comprobante de Crédito Fiscal'),
+('FAC', 'Factura Consumidor Final'),
+('NC', 'Nota de Crédito'),
+('ND', 'Nota de Débito');
+
+
+/* =========================
+   CENTROS DE COSTO
+   ========================= */
+INSERT INTO CentrosCosto (Codigo, Nombre, Responsable, Presupuesto, Activo)
+VALUES
+('ADM-001', 'Administración', 'Carlos Moran', 2500.00, 1),
+('VEN-001', 'Ventas', 'Ana López', 4000.00, 1),
+('CON-001', 'Contabilidad', 'María Hernández', 3000.00, 1);
+
+
+/* =========================
+   TERCEROS
+   ========================= */
+INSERT INTO Terceros
+(TipoTercero, Nombre, NIT, NRC, Correo, Telefono, Activo)
+VALUES
+('Cliente', 'Comercial El Buen Precio S.A. de C.V.', '0614-120299-101-3', '123456-7', 'compras@buenprecio.com', '2222-1111', 1),
+('Proveedor', 'Distribuidora Central S.A. de C.V.', '0614-220188-102-5', '765432-1', 'ventas@central.com', '2233-4455', 1),
+('Ambos', 'Servicios Integrales López', '0614-150390-103-8', '112233-4', 'info@lopez.com', '7777-8888', 1);
+
+
+/* =========================
+   CUENTAS CONTABLES
+   ========================= */
+INSERT INTO CuentasContables
+(TipoCuentaId, CuentaPadreId, CodigoCuenta, NombreCuenta, PermiteMovimiento, Activa)
+VALUES
+(1, NULL, '1101', 'Caja General', 1, 1),
+(1, NULL, '1102', 'Bancos', 1, 1),
+(1, NULL, '1103', 'Clientes', 1, 1),
+(2, NULL, '2101', 'Proveedores', 1, 1),
+(2, NULL, '2102', 'IVA por Pagar', 1, 1),
+(4, NULL, '4101', 'Ingresos por Ventas', 1, 1),
+(5, NULL, '5101', 'Gastos Administrativos', 1, 1),
+(5, NULL, '5102', 'Gastos de Ventas', 1, 1);
+
+
+/* =========================
+   PERIODOS CONTABLES
+   ========================= */
+INSERT INTO PeriodosContables (Anio, Mes, Estado)
+VALUES
+(2026, 6, 'Abierto'),
+(2026, 7, 'Abierto');
+
+
+/* =========================
+   PARTIDAS CONTABLES
+   ========================= */
+INSERT INTO PartidasContables
+(PeriodoId, TipoPartidaId, NumeroPartida, Fecha, ConceptoGeneral, Estado, CreadaPorUsuarioId)
+VALUES
+(1, 1, 'P-2026-06-001', '2026-06-17', 'Venta al crédito a cliente Comercial El Buen Precio', 'Contabilizada', 2),
+(1, 2, 'P-2026-06-002', '2026-06-17', 'Compra al crédito a proveedor Distribuidora Central', 'Contabilizada', 2);
+
+
+/* =========================
+   DETALLES DE PARTIDA
+   Partida 1: Venta
+   ========================= */
+INSERT INTO DetallesPartida
+(PartidaId, CuentaId, CentroCostoId, Descripcion, Debe, Haber)
+VALUES
+(1, 3, 2, 'Cuenta por cobrar a cliente', 113.00, 0.00),
+(1, 6, 2, 'Ingreso por venta', 0.00, 100.00),
+(1, 5, 2, 'IVA generado por venta', 0.00, 13.00);
+
+
+/* =========================
+   DETALLES DE PARTIDA
+   Partida 2: Compra
+   ========================= */
+INSERT INTO DetallesPartida
+(PartidaId, CuentaId, CentroCostoId, Descripcion, Debe, Haber)
+VALUES
+(2, 7, 1, 'Gasto administrativo por compra', 200.00, 0.00),
+(2, 4, 1, 'Cuenta por pagar a proveedor', 0.00, 226.00),
+(2, 5, 1, 'IVA crédito fiscal', 26.00, 0.00);
+
+
+/* =========================
+   DOCUMENTOS FISCALES
+   ========================= */
+INSERT INTO DocumentosFiscales
+(TerceroId, TipoDocumentoFiscalId, PartidaId, TipoLibro, NumeroDocumento,
+ FechaDocumento, MontoExento, MontoGravado, IVA, Total, AplicaRetencion)
+VALUES
+(1, 2, 1, 'Venta', 'FAC-000001', '2026-06-17', 0.00, 100.00, 13.00, 113.00, 0),
+(2, 1, 2, 'Compra', 'CCF-000001', '2026-06-17', 0.00, 200.00, 26.00, 226.00, 1);
+
+
+/* =========================
+   RETENCIONES
+   ========================= */
+INSERT INTO Retenciones
+(DocumentoFiscalId, TipoRetencion, Porcentaje, MontoBase, MontoRetenido)
+VALUES
+(2, 'IVA', 1.00, 200.00, 2.00);
+
+
+/* =========================
+   BITÁCORA
+   ========================= */
+INSERT INTO BitacoraSistema
+(UsuarioId, Accion, TablaAfectada, Descripcion)
+VALUES
+(1, 'INSERT', 'Roles', 'Carga inicial de roles del sistema'),
+(2, 'INSERT', 'DocumentosFiscales', 'Registro de documentos fiscales de prueba'),
+(2, 'INSERT', 'PartidasContables', 'Registro de partidas contables conectadas a documentos fiscales');
