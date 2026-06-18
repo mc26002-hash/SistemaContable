@@ -40,21 +40,15 @@ public class RolListadoForm extends JDialog  {
         panelListado.add(scrollPane, BorderLayout.CENTER);
 
         btnAgregar = new JButton("Nuevo Rol");
-        btnAgregar.setBackground(new Color(21, 101, 192));
-        btnAgregar.setForeground(Color.WHITE);
         btnAgregar.setFont(new Font("Arial", Font.BOLD, 12));
 
         btnModificar = new JButton("Modificar Rol");
-        btnModificar.setBackground(new Color(251, 192, 45));
-        btnModificar.setForeground(Color.WHITE);
         btnModificar.setFont(new Font("Arial", Font.BOLD, 12));
         btnModificar.setOpaque(true);
         btnModificar.setBorderPainted(false);
 
 
         btnEliminar = new JButton("Eliminar Rol");
-        btnEliminar.setBackground(new Color(198, 40, 40));
-        btnEliminar.setForeground(Color.WHITE);
         btnEliminar.setFont(new Font("Arial", Font.BOLD, 12));
 
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));

@@ -5,18 +5,10 @@ import esfe.dominio.Usuario;
 import esfe.presentacion.contabilidad.DocumentoFiscalForm;
 import esfe.presentacion.contabilidad.TercerosForm;
 import esfe.presentacion.contabilidad.TipoDocumentoFiscalForm;
-
 import esfe.presentacion.centroscosto.CentroCostoReadingForm;
 import esfe.presentacion.centroscosto.CentroCostoWriteForm;
-
-import esfe.presentacion.contabilidad.DocumentoFiscalForm;
-import esfe.presentacion.contabilidad.TercerosForm;
-import esfe.presentacion.contabilidad.TipoDocumentoFiscalForm;
 import esfe.presentacion.contabilidad.TipoPartidaForm;
-
-import esfe.presentacion.contabilidad.tipocuenta.CrearCuentaForm;
 import esfe.presentacion.contabilidad.tipocuenta.TipoCuenta;
-
 import esfe.presentacion.usuario.ChangePasswordForm;
 import esfe.presentacion.usuario.RolListadoForm;
 import esfe.presentacion.usuario.UsuarioReadingForm;
@@ -37,6 +29,21 @@ public class MainForm extends JFrame {
         this.usuarioAutenticado = usuarioAutenticado;
     }
 
+    //CON LOGIN
+//    public MainForm(Usuario usuarioAutenticado) {
+//        this.usuarioAutenticado = usuarioAutenticado;
+//
+//        setTitle("Panel Principal - Sistema Contable");
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(1100, 600);
+//        setLocationRelativeTo(null);
+//        setExtendedState(JFrame.MAXIMIZED_BOTH);
+//
+//        createMenu();
+//        createMainPanel();
+//    }
+
+    //SIN LOGIN
     public MainForm() {
         setTitle("Panel Principal - Sistema Contable");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,12 +83,9 @@ public class MainForm extends JFrame {
 
         JMenuItem itemUsuarios = new JMenuItem("Gestión de Usuarios");
         JMenuItem itemRoles = new JMenuItem("Roles");
-        JMenuItem itemCambiarPassword = new JMenuItem("Cambiar Contraseña");
 
         menuUsuarios.add(itemUsuarios);
         menuUsuarios.add(itemRoles);
-        menuUsuarios.addSeparator();
-        menuUsuarios.add(itemCambiarPassword);
 
         itemUsuarios.addActionListener(e -> {
             UsuarioReadingForm form = new UsuarioReadingForm();
@@ -93,7 +97,6 @@ public class MainForm extends JFrame {
             form.setVisible(true);
         });
 
-        itemCambiarPassword.addActionListener(e -> mostrarModuloPendiente());
 
         // =========================
         // MENÚ CONTABILIDAD
@@ -257,15 +260,32 @@ public class MainForm extends JFrame {
         panelBotones.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         panelBotones.setBackground(Color.LIGHT_GRAY);
 
-        JButton btnUsuarios = new JButton("Gestión de Usuarios");
-        JButton btnCatalogo = new JButton("Catálogo de Cuentas");
-        JButton btnReportes = new JButton("Reportes Financieros");
-        JButton btnCierre = new JButton("Cierre de Periodos");
+        JButton btnUsuarios = new JButton("Usuarios");
+        JButton btnDocumentos = new JButton("Documentos Fiscales");
+        JButton btnCentrosCosto = new JButton("Centros de Costo");
+        JButton btnReportes = new JButton("Reportes");
+
+        btnUsuarios.addActionListener(e -> {
+            UsuarioReadingForm form = new UsuarioReadingForm();
+            form.setVisible(true);
+        });
+
+        btnDocumentos.addActionListener(e -> {
+            DocumentoFiscalForm form = new DocumentoFiscalForm(this);
+            form.setVisible(true);
+        });
+
+        btnCentrosCosto.addActionListener(e -> {
+            CentroCostoReadingForm form = new CentroCostoReadingForm();
+            form.setVisible(true);
+        });
+
+        btnReportes.addActionListener(e -> mostrarModuloPendiente());
 
         panelBotones.add(btnUsuarios);
-        panelBotones.add(btnCatalogo);
+        panelBotones.add(btnDocumentos);
+        panelBotones.add(btnCentrosCosto);
         panelBotones.add(btnReportes);
-        panelBotones.add(btnCierre);
 
         panel.add(panelBotones, BorderLayout.CENTER);
 

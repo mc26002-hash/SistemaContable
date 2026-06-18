@@ -53,17 +53,7 @@ public class UsuarioReadingForm extends JDialog {
             @Override
             public void keyReleased(KeyEvent e) {
 
-                if (!txtBuscar.getText().trim().isEmpty()) {
-
-                    search(txtBuscar.getText());
-
-                } else {
-
-                    DefaultTableModel emptyModel =
-                            new DefaultTableModel();
-
-                    tableUsuarios.setModel(emptyModel);
-                }
+                search(txtBuscar.getText().trim());
             }
         });
 
@@ -167,6 +157,7 @@ public class UsuarioReadingForm extends JDialog {
                 );
             }
         });
+        search("");
     }
 
     private void search(String query) {
