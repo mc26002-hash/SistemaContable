@@ -80,6 +80,7 @@ public class DocumentoFiscalForm extends JDialog {
             }
 
             comboBoxTipoLibro.removeAllItems();
+            comboBoxTipoLibro.addItem("");
             comboBoxTipoLibro.addItem("Compra");
             comboBoxTipoLibro.addItem("Venta");
 

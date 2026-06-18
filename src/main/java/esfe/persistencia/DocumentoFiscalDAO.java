@@ -161,16 +161,22 @@ public class DocumentoFiscalDAO {
         ArrayList<DocumentoFiscal> records = new ArrayList<>();
 
         try {
-            ps = conn.connect().prepareStatement(
+            String sql =
                     "SELECT DocumentoFiscalId, TerceroId, TipoDocumentoFiscalId, PartidaId, " +
                             "TipoLibro, NumeroDocumento, FechaDocumento, MontoExento, " +
                             "MontoGravado, IVA, Total, AplicaRetencion " +
-                            "FROM DocumentosFiscales " +
-                            "WHERE TipoLibro LIKE ? OR NumeroDocumento LIKE ?"
-            );
+                            "FROM DocumentosFiscales";
 
-            ps.setString(1, "%" + texto + "%");
-            ps.setString(2, "%" + texto + "%");
+            if (texto != null && !texto.trim().isEmpty()) {
+                sql += " WHERE TipoLibro LIKE ? OR NumeroDocumento LIKE ?";
+            }
+
+            ps = conn.connect().prepareStatement(sql);
+
+            if (texto != null && !texto.trim().isEmpty()) {
+                ps.setString(1, "%" + texto + "%");
+                ps.setString(2, "%" + texto + "%");
+            }
 
             rs = ps.executeQuery();
 

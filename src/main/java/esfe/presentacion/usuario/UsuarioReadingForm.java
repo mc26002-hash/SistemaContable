@@ -230,7 +230,7 @@ public class UsuarioReadingForm extends JDialog {
             );
 
             model.setValueAt(
-                    usuario.getRolId(),
+                    obtenerNombreRol(usuario.getRolId()),
                     i,
                     3
             );
@@ -245,6 +245,19 @@ public class UsuarioReadingForm extends JDialog {
         }
 
         hideCol(0);
+    }
+
+    private String obtenerNombreRol(int rolId) {
+        switch (rolId) {
+            case 1:
+                return "Administrador";
+            case 2:
+                return "Contador";
+            case 3:
+                return "Auxiliar Contable";
+            default:
+                return "Rol ID: " + rolId;
+        }
     }
 
     private void hideCol(int columna) {

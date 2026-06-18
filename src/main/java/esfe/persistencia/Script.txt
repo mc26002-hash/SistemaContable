@@ -312,12 +312,17 @@ VALUES
 /* =========================
    USUARIOS
    ========================= */
+
 INSERT INTO Usuarios
 (RolId, NombreUsuario, PasswordHash, NombreCompleto, CorreoElectronico, Activo)
 VALUES
 (1, 'admin', CONVERT(VARBINARY(256), '123456'), 'Administrador General', 'admin@sistema.com', 1),
 (2, 'contador01', CONVERT(VARBINARY(256), '123456'), 'Carlos Moran', 'contador@sistema.com', 1),
 (3, 'auxiliar01', CONVERT(VARBINARY(256), '123456'), 'Ana López', 'auxiliar@sistema.com', 1);
+
+UPDATE Usuarios
+SET PasswordHash = HASHBYTES('SHA2_256', CONVERT(VARCHAR(100), '123456'))
+WHERE NombreUsuario IN ('admin', 'contador01', 'auxiliar01');
 
 
 /* =========================
