@@ -3,6 +3,7 @@ package esfe.presentacion.contabilidad;
 import esfe.dominio.TipoDocumentoFiscal;
 import esfe.persistencia.TipoDocumentoFiscalDAO;
 import esfe.presentacion.MainForm;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -33,7 +34,7 @@ public class TipoDocumentoFiscalForm extends JDialog {
         setContentPane(mainPanel);
         setModal(true);
         setTitle("Tipos de Documento Fiscal");
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(mainForm);
 
         cargarTabla();

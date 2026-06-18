@@ -2,6 +2,9 @@
 package esfe;
 
 
+
+import com.formdev.flatlaf.intellijthemes.*;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import esfe.presentacion.MainForm;
 import esfe.presentacion.usuario.LoginForm;
 import esfe.dominio.Usuario;
@@ -13,6 +16,13 @@ import javax.swing.*;
 public class Main {
 
     public static void main(String[] args) {
+
+        try {
+            FlatMacLightLaf.setup();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
 //        SwingUtilities.invokeLater(() -> {
 //            LoginForm loginForm = new LoginForm();
 //            loginForm.setVisible(true);

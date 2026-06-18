@@ -4,6 +4,7 @@ package esfe.presentacion.contabilidad;
 import esfe.dominio.TipoPartida;
 import esfe.persistencia.TipoPartidaDAO;
 import esfe.presentacion.MainForm;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -32,7 +33,7 @@ public class TipoPartidaForm extends JDialog {
         setContentPane(panelprincipal);
         setModal(true);
         setTitle("Tipos de Partida");
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(mainForm);
 
         cargarTabla();

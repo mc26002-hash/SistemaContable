@@ -3,6 +3,7 @@ package esfe.presentacion.centroscosto;
 import esfe.dominio.CentroCosto;
 import esfe.persistencia.CentroCostoDAO;
 import esfe.utils.CUD;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -31,7 +32,7 @@ public class CentroCostoReadingForm extends JDialog {
 
         setTitle("Centros de Costo");
 
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(null);
 
         btnNuevo.addActionListener(

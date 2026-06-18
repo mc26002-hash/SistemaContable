@@ -1,8 +1,13 @@
 package esfe.presentacion.usuario;
 
+import esfe.dominio.Rol;
 import esfe.dominio.Usuario;
 import esfe.persistencia.UsuarioDAO;
 import esfe.utils.CUD;
+import esfe.utils.WindowConfig;
+import esfe.dominio.Rol;
+import esfe.persistencia.RolDAO;
+import java.sql.SQLException;
 
 import javax.swing.*;
 import java.nio.charset.StandardCharsets;
@@ -16,7 +21,7 @@ public class UsuarioWriteForm extends JDialog {
 
     private JPasswordField txtPassword;
 
-    private JComboBox<String> cbRol;
+    private JComboBox<Rol> cbRol;
     private JComboBox<String> cbEstado;
 
     private JButton btnGuardar;
@@ -25,6 +30,7 @@ public class UsuarioWriteForm extends JDialog {
     private JLabel lbPassword;
 
     private UsuarioDAO usuarioDAO;
+    private RolDAO rolDAO;
     private Usuario usuario;
     private CUD cud;
 
@@ -34,14 +40,14 @@ public class UsuarioWriteForm extends JDialog {
         this.usuario = usuario;
 
         usuarioDAO = new UsuarioDAO();
+        rolDAO = new RolDAO();
 
         setContentPane(mainPanel);
         setModal(true);
 
         init();
 
-        pack();
-        setLocationRelativeTo(null);
+        WindowConfig.configurarVentana(this);
 
         btnCancelar.addActionListener(e -> dispose());
 
@@ -78,12 +84,23 @@ public class UsuarioWriteForm extends JDialog {
     }
 
     private void cargarRoles() {
+        try {
+            cbRol.removeAllItems();
 
-        cbRol.removeAllItems();
+            for (Rol rol : rolDAO.search("")) {
+                if (rol.getActivo()) {
+                    cbRol.addItem(rol);
+                }
+            }
 
-        cbRol.addItem("Administrador");
-        cbRol.addItem("Contador");
-        cbRol.addItem("Usuario");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error al cargar roles: " + ex.getMessage(),
+                    "ERROR",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void cargarEstados() {
@@ -112,17 +129,13 @@ public class UsuarioWriteForm extends JDialog {
                 usuario.getCorreoElectronico()
         );
 
-        if (usuario.getRolId() == 1) {
+        for (int i = 0; i < cbRol.getItemCount(); i++) {
+            Rol rol = cbRol.getItemAt(i);
 
-            cbRol.setSelectedItem("Administrador");
-
-        } else if (usuario.getRolId() == 2) {
-
-            cbRol.setSelectedItem("Contador");
-
-        } else if (usuario.getRolId() == 13) {
-
-            cbRol.setSelectedItem("Usuario");
+            if (rol.getRolId() == usuario.getRolId()) {
+                cbRol.setSelectedIndex(i);
+                break;
+            }
         }
 
         cbEstado.setSelectedItem(
@@ -186,19 +199,10 @@ public class UsuarioWriteForm extends JDialog {
                 txtCorreoElectronico.getText().trim()
         );
 
-        String rol = cbRol.getSelectedItem().toString();
+        Rol rolSeleccionado = (Rol) cbRol.getSelectedItem();
 
-        if (rol.equals("Administrador")) {
-
-            usuario.setRolId(1);
-
-        } else if (rol.equals("Contador")) {
-
-            usuario.setRolId(2);
-
-        } else if (rol.equals("Usuario")) {
-
-            usuario.setRolId(13);
+        if (rolSeleccionado != null) {
+            usuario.setRolId(rolSeleccionado.getRolId());
         }
 
         usuario.setActivo(

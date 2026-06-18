@@ -7,6 +7,7 @@ import esfe.persistencia.DocumentoFiscalDAO;
 import esfe.persistencia.TerceroDAO;
 import esfe.persistencia.TipoDocumentoFiscalDAO;
 import esfe.presentacion.MainForm;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -50,7 +51,7 @@ public class DocumentoFiscalForm extends JDialog {
         setContentPane(mainPanel);
         setModal(true);
         setTitle("Documentos Fiscales");
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(mainForm);
 
         cargarCombos();

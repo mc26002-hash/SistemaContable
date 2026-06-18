@@ -3,6 +3,7 @@ package esfe.presentacion.centroscosto;
 import esfe.dominio.CentroCosto;
 import esfe.persistencia.CentroCostoDAO;
 import esfe.utils.CUD;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import java.math.BigDecimal;
@@ -40,7 +41,7 @@ public class CentroCostoWriteForm extends JDialog {
 
         init();
 
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(null);
 
         btnCancelar.addActionListener(

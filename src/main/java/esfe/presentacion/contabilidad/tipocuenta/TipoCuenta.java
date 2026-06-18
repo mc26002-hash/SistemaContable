@@ -1,5 +1,7 @@
 package esfe.presentacion.contabilidad.tipocuenta;
 
+import esfe.utils.WindowConfig;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
@@ -33,7 +35,7 @@ public class TipoCuenta extends JDialog {
         setTitle("Catálogo de Cuentas Contables");
         setContentPane(panelPrincipal);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(padre);
 
         llenarTabla();

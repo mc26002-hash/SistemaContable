@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import esfe.utils.PasswordHasher;
+import esfe.utils.WindowConfig;
 
 public class LoginForm extends JDialog {
     private JPanel mainPanel;
@@ -28,8 +29,8 @@ public class LoginForm extends JDialog {
         setModal(true);
         setTitle("Iniciar Sesión");
 
-        setSize(650, 500);
-        setLocationRelativeTo(null);
+        WindowConfig.configurarVentana(this);
+
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         btnCancelar.addActionListener(e -> System.exit(0));

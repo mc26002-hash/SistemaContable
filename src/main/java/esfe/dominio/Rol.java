@@ -52,4 +52,9 @@ public class Rol {
     public String getStrEstatus() {
         return activo ? "ACTIVO" : "INACTIVO";
     }
+
+    @Override
+    public String toString() {
+        return nombreRol;
+    }
 }

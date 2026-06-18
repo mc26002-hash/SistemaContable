@@ -1,18 +1,16 @@
 package esfe.presentacion;
 
-import esfe.dominio.CentroCosto;
 import esfe.dominio.Usuario;
 import esfe.presentacion.contabilidad.DocumentoFiscalForm;
 import esfe.presentacion.contabilidad.TercerosForm;
 import esfe.presentacion.contabilidad.TipoDocumentoFiscalForm;
 import esfe.presentacion.centroscosto.CentroCostoReadingForm;
-import esfe.presentacion.centroscosto.CentroCostoWriteForm;
 import esfe.presentacion.contabilidad.TipoPartidaForm;
 import esfe.presentacion.contabilidad.tipocuenta.TipoCuenta;
-import esfe.presentacion.usuario.ChangePasswordForm;
 import esfe.presentacion.usuario.RolListadoForm;
 import esfe.presentacion.usuario.UsuarioReadingForm;
-import esfe.utils.CUD;
+import java.awt.*;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -82,7 +80,7 @@ public class MainForm extends JFrame {
         menuBar.add(menuUsuarios);
 
         JMenuItem itemUsuarios = new JMenuItem("Gestión de Usuarios");
-        JMenuItem itemRoles = new JMenuItem("Roles");
+        JMenuItem itemRoles = new JMenuItem("Gestión de Roles");
 
         menuUsuarios.add(itemUsuarios);
         menuUsuarios.add(itemRoles);
@@ -96,7 +94,6 @@ public class MainForm extends JFrame {
             RolListadoForm form = new RolListadoForm();
             form.setVisible(true);
         });
-
 
         // =========================
         // MENÚ CONTABILIDAD
@@ -112,27 +109,23 @@ public class MainForm extends JFrame {
         menuContabilidad.add(menuCuentas);
         menuContabilidad.add(menuDocumentos);
 
-        JMenuItem itemTerceros = new JMenuItem("Terceros");
-        JMenuItem itemTipoDocumentoFiscal = new JMenuItem("Tipos de Documento Fiscal");
-        JMenuItem itemTipoPartida = new JMenuItem("Tipos de Partida");
+        JMenuItem itemTerceros = new JMenuItem("Gestión de Terceros");
+        JMenuItem itemTipoDocumentoFiscal = new JMenuItem("Gestión de Tipos de Documento Fiscal");
+        JMenuItem itemTipoPartida = new JMenuItem("Gestión de Tipos de Partida");
 
         menuCatalogos.add(itemTerceros);
         menuCatalogos.add(itemTipoDocumentoFiscal);
         menuCatalogos.add(itemTipoPartida);
 
-        JMenuItem itemTipoCuenta = new JMenuItem("Tipos de Cuenta");
-        JMenuItem itemCrearCuenta = new JMenuItem("Crear Cuenta");
-
+        JMenuItem itemTipoCuenta = new JMenuItem("Gestión de Tipos de Cuenta");
         menuCuentas.add(itemTipoCuenta);
-        menuCuentas.add(itemCrearCuenta);
 
         JMenuItem itemDocumentosFiscales = new JMenuItem("Gestión de Documentos Fiscales");
-
         menuDocumentos.add(itemDocumentosFiscales);
 
         menuContabilidad.addSeparator();
 
-        JMenuItem itemAsientos = new JMenuItem("Asientos Contables");
+        JMenuItem itemAsientos = new JMenuItem("Gestión de Asientos Contables");
         JMenuItem itemPeriodos = new JMenuItem("Cierre de Periodos");
 
         menuContabilidad.add(itemAsientos);
@@ -158,11 +151,6 @@ public class MainForm extends JFrame {
             form.setVisible(true);
         });
 
-        itemCrearCuenta.addActionListener(e -> {
-            TipoCuenta form = new TipoCuenta(this);
-            form.setVisible(true);
-        });
-
         itemDocumentosFiscales.addActionListener(e -> {
             DocumentoFiscalForm form = new DocumentoFiscalForm(this);
             form.setVisible(true);
@@ -177,20 +165,11 @@ public class MainForm extends JFrame {
         JMenu menuCentrosCosto = new JMenu("Centros de Costo");
         menuBar.add(menuCentrosCosto);
 
-        JMenuItem itemVerCentrosCosto = new JMenuItem("Ver Centros de Costo");
-        JMenuItem itemCrearCentroCosto = new JMenuItem("Crear Centro de Costo");
+        JMenuItem itemCentrosCosto = new JMenuItem("Gestión de Centros de Costo");
+        menuCentrosCosto.add(itemCentrosCosto);
 
-        menuCentrosCosto.add(itemVerCentrosCosto);
-        menuCentrosCosto.add(itemCrearCentroCosto);
-
-        itemVerCentrosCosto.addActionListener(e -> {
+        itemCentrosCosto.addActionListener(e -> {
             CentroCostoReadingForm form = new CentroCostoReadingForm();
-            form.setVisible(true);
-        });
-
-        itemCrearCentroCosto.addActionListener(e -> {
-            CentroCosto centroCosto = new CentroCosto();
-            CentroCostoWriteForm form = new CentroCostoWriteForm(CUD.CREATE, centroCosto);
             form.setVisible(true);
         });
 
@@ -219,7 +198,6 @@ public class MainForm extends JFrame {
         menuBar.add(menuHerramientas);
 
         JMenuItem itemCalculadora = new JMenuItem("Calculadora");
-
         menuHerramientas.add(itemCalculadora);
 
         itemCalculadora.addActionListener(e -> mostrarModuloPendiente());
@@ -231,7 +209,6 @@ public class MainForm extends JFrame {
         menuBar.add(menuAyuda);
 
         JMenuItem itemManualUsuario = new JMenuItem("Manual de Usuario");
-
         menuAyuda.add(itemManualUsuario);
 
         itemManualUsuario.addActionListener(e -> mostrarModuloPendiente());
@@ -245,50 +222,109 @@ public class MainForm extends JFrame {
     }
 
     private void createMainPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(Color.LIGHT_GRAY);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(245, 245, 245));
 
-        JLabel lblTitulo = new JLabel("Bienvenido al Sistema de Contabilidad");
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 18));
-        lblTitulo.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // HEADER
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(new Color(35, 45, 65));
+        header.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
-        panel.add(lblTitulo, BorderLayout.NORTH);
+        JLabel lblTitulo = new JLabel("Sistema de Contabilidad");
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTitulo.setForeground(Color.WHITE);
 
-        JPanel panelBotones = new JPanel();
-        panelBotones.setLayout(new GridLayout(1, 4, 20, 20));
-        panelBotones.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        panelBotones.setBackground(Color.LIGHT_GRAY);
+        JLabel lblUsuario = new JLabel("Usuario: Administrador");
+        lblUsuario.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblUsuario.setForeground(new Color(220, 220, 220));
 
-        JButton btnUsuarios = new JButton("Usuarios");
-        JButton btnDocumentos = new JButton("Documentos Fiscales");
-        JButton btnCentrosCosto = new JButton("Centros de Costo");
-        JButton btnReportes = new JButton("Reportes");
+        header.add(lblTitulo, BorderLayout.WEST);
+        header.add(lblUsuario, BorderLayout.EAST);
 
-        btnUsuarios.addActionListener(e -> {
-            UsuarioReadingForm form = new UsuarioReadingForm();
-            form.setVisible(true);
-        });
+        panel.add(header, BorderLayout.NORTH);
 
-        btnDocumentos.addActionListener(e -> {
-            DocumentoFiscalForm form = new DocumentoFiscalForm(this);
-            form.setVisible(true);
-        });
+        // CONTENIDO
+        JPanel contenido = new JPanel(new BorderLayout(20, 20));
+        contenido.setBackground(new Color(245, 245, 245));
+        contenido.setBorder(BorderFactory.createEmptyBorder(25, 30, 20, 30));
 
-        btnCentrosCosto.addActionListener(e -> {
-            CentroCostoReadingForm form = new CentroCostoReadingForm();
-            form.setVisible(true);
-        });
+        JPanel accesos = new JPanel(new GridLayout(2, 2, 18, 18));
+        accesos.setBackground(new Color(245, 245, 245));
 
+        JButton btnUsuarios = crearTarjetaMenu("Usuarios");
+        JButton btnDocumentos = crearTarjetaMenu("Documentos\nFiscales");
+        JButton btnCentrosCosto = crearTarjetaMenu("Centros\nde Costo");
+        JButton btnReportes = crearTarjetaMenu("Reportes");
+
+        btnUsuarios.addActionListener(e -> new UsuarioReadingForm().setVisible(true));
+        btnDocumentos.addActionListener(e -> new DocumentoFiscalForm(this).setVisible(true));
+        btnCentrosCosto.addActionListener(e -> new CentroCostoReadingForm().setVisible(true));
         btnReportes.addActionListener(e -> mostrarModuloPendiente());
 
-        panelBotones.add(btnUsuarios);
-        panelBotones.add(btnDocumentos);
-        panelBotones.add(btnCentrosCosto);
-        panelBotones.add(btnReportes);
+        accesos.add(btnUsuarios);
+        accesos.add(btnDocumentos);
+        accesos.add(btnCentrosCosto);
+        accesos.add(btnReportes);
 
-        panel.add(panelBotones, BorderLayout.CENTER);
+        JPanel lateral = new JPanel();
+        lateral.setLayout(new BoxLayout(lateral, BoxLayout.Y_AXIS));
+        lateral.setBackground(Color.WHITE);
+        lateral.setPreferredSize(new Dimension(230, 0));
+        lateral.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+
+        JLabel lblResumen = new JLabel("Resumen del sistema");
+        lblResumen.setFont(new Font("Arial", Font.BOLD, 15));
+
+        JLabel lbl1 = new JLabel("• Base de datos conectada");
+        JLabel lbl2 = new JLabel("• Módulos activos");
+        JLabel lbl3 = new JLabel("• Sistema listo para operar");
+        JLabel lbl4 = new JLabel("• Versión 1.0");
+
+        lateral.add(lblResumen);
+        lateral.add(Box.createVerticalStrut(15));
+        lateral.add(lbl1);
+        lateral.add(Box.createVerticalStrut(8));
+        lateral.add(lbl2);
+        lateral.add(Box.createVerticalStrut(8));
+        lateral.add(lbl3);
+        lateral.add(Box.createVerticalStrut(8));
+        lateral.add(lbl4);
+
+        contenido.add(accesos, BorderLayout.CENTER);
+        contenido.add(lateral, BorderLayout.EAST);
+
+        panel.add(contenido, BorderLayout.CENTER);
+
+        // FOOTER
+        JLabel footer = new JLabel("ESFE AGAPE 2026  |  Sistema Contable v1.0", JLabel.CENTER);
+        footer.setFont(new Font("Arial", Font.PLAIN, 12));
+        footer.setForeground(new Color(100, 100, 100));
+        footer.setBorder(BorderFactory.createEmptyBorder(8, 8, 12, 8));
+
+        panel.add(footer, BorderLayout.SOUTH);
 
         setContentPane(panel);
+    }
+
+    private JButton crearTarjetaMenu(String texto) {
+        JButton boton = new JButton("<html><center>" + texto.replace("\n", "<br>") + "</center></html>");
+
+        boton.setPreferredSize(new Dimension(150, 90));
+        boton.setFont(new Font("Arial", Font.BOLD, 16));
+        boton.setFocusPainted(false);
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        boton.setBackground(Color.WHITE);
+        boton.setForeground(new Color(40, 40, 40));
+
+        boton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(210, 210, 210), 1),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
+        ));
+
+        return boton;
     }
 }

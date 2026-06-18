@@ -1,5 +1,7 @@
 package esfe.presentacion.contabilidad.tipocuenta;
 
+import esfe.utils.WindowConfig;
+
 import javax.swing.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,7 +22,7 @@ public class CrearCuentaForm extends JDialog {
         setTitle("Nueva Cuenta");
         setContentPane(mainPanel);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(padre);
 
         btnCancelar.addActionListener(e -> dispose());

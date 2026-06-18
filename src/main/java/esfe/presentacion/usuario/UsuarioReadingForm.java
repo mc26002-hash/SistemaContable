@@ -4,6 +4,7 @@ import esfe.dominio.Usuario;
 import esfe.persistencia.UsuarioDAO;
 import esfe.presentacion.usuario.UsuarioWriteForm;
 import esfe.utils.CUD;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -29,11 +30,12 @@ public class UsuarioReadingForm extends JDialog {
 
         usuarioDAO = new UsuarioDAO();
 
+
+
         setContentPane(mainPanel);
         setModal(true);
         setTitle("Gestión de Usuarios");
-        pack();
-        setLocationRelativeTo(null);
+        WindowConfig.configurarVentana(this);
 
         txtPermisosRol.setEditable(false);
 

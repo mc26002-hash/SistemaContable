@@ -3,6 +3,7 @@ package esfe.presentacion.usuario;
 
 import esfe.dominio.Rol;
 import esfe.persistencia.RolDAO;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -24,6 +25,8 @@ public class RolListadoForm extends JDialog  {
     public RolListadoForm() {
         setTitle("Sistema Contable - Registro General de Roles");
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+
 
         panelListado = new JPanel(new BorderLayout(10, 10));
         panelListado.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -204,8 +207,7 @@ public class RolListadoForm extends JDialog  {
             }
         });
 
-        setSize(680, 450);
-        setLocationRelativeTo(null);
+        WindowConfig.configurarVentana(this);
     }
 
     private void cargarDatosTabla() {

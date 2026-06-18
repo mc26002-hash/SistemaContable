@@ -3,6 +3,7 @@ package esfe.presentacion.usuario;
 import esfe.dominio.Usuario;
 import esfe.persistencia.UsuarioDAO;
 import esfe.utils.PasswordHasher;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 
@@ -24,8 +25,7 @@ public class ChangePasswordForm extends JDialog {
         setContentPane(mainPanel);
         setModal(true);
         setTitle("Cambiar Contraseña");
-        setSize(450, 300);
-        setLocationRelativeTo(null);
+        WindowConfig.configurarVentana(this);
 
         txtEmail.setEditable(false);
         txtEmail.setText(usuario.getCorreoElectronico());

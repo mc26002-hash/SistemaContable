@@ -3,6 +3,7 @@ package esfe.presentacion.contabilidad;
 import esfe.dominio.Tercero;
 import esfe.persistencia.TerceroDAO;
 import esfe.presentacion.MainForm;
+import esfe.utils.WindowConfig;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -37,7 +38,7 @@ public class TercerosForm extends JDialog {
         setContentPane(mainPanel);
         setModal(true);
         setTitle("Terceros");
-        pack();
+        WindowConfig.configurarVentana(this);
         setLocationRelativeTo(mainForm);
 
         cargarComboTipo();
