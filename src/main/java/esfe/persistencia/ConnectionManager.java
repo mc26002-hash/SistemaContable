@@ -6,19 +6,20 @@ import java.sql.SQLException;
 
 public class ConnectionManager {
 
-    private static final String STR_CONNECTION = System.getenv("DB_URL");
-    private static final String DB_USER = System.getenv("DB_USER");
-    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD");
+    private static final String STR_CONNECTION =
+            "jdbc:sqlserver://ContabilidadESFE.mssql.somee.com:1433;" +
+                    "databaseName=ContabilidadESFE;" +
+                    "encrypt=true;" +
+                    "trustServerCertificate=true;";
+
+    private static final String DB_USER = "ContabilidadGab_SQLLogin_1";
+    private static final String DB_PASSWORD = "a7l6kuot7x";
 
     private Connection connection;
     private static ConnectionManager instance;
 
     private ConnectionManager() {
         this.connection = null;
-
-        if (STR_CONNECTION == null || DB_USER == null || DB_PASSWORD == null) {
-            throw new RuntimeException("Faltan variables de entorno: DB_URL, DB_USER o DB_PASSWORD");
-        }
 
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
